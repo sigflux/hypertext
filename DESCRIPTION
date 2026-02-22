@@ -1,10 +1,14 @@
 Package: hypertext
-Title: `HTML` Element Construction
+Title: 'HTML' Element Construction
 Version: 0.0.0.9000
 Authors@R: 
-    person("Kennedy", "Mwavu", , "mwavukennedy@gmail.com", role = c("aut", "cre"))
-Description: Provides a small, deterministic DSL for building HTML nodes and rendering them to a string.
+    person("Kennedy", "Mwavu", , "mwavukennedy@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0006-3157-7234"))
+Description: Provides a small, deterministic Domain-Specific Language for building
+    'HTML' nodes and rendering them to a string.
 License: MIT + file LICENSE
+URL: https://github.com/kennedymwavu/hypertext
+BugReports: https://github.com/kennedymwavu/hypertext/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
