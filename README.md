@@ -9,6 +9,20 @@ widgets or framework integrations.
 
 heavily inspired by [{htmltools}](https://github.com/rstudio/htmltools).
 
+## installation
+
+install the stable version from CRAN:
+
+```r
+install.packages("hypertext")
+```
+
+or get the development version from github:
+
+```r
+devtools::install_github("kennedymwavu/hypertext")
+```
+
 ## quick start
 
 ```r
@@ -34,3 +48,21 @@ page <- tags$html(
 render(page)
 ```
 
+## rendering
+
+`render()` takes a tag tree and returns a single HTML string:
+
+```r
+x <- tags$p(
+  class = "lead",
+  "hello"
+)
+
+# `x` contains the tag tree
+class(x)
+#> [1] "ht_tag"
+
+# rendering produces an HTML string:
+render(x)
+#> [1] "<p class=\"lead\">hello</p>"
+```
