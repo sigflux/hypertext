@@ -1,5 +1,13 @@
 # hypertext
 
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/sigflux/hypertext/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/sigflux/hypertext/actions/workflows/R-CMD-check.yaml)
+[![CRAN status](https://www.r-pkg.org/badges/version/hypertext)](https://CRAN.R-project.org/package=hypertext)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+
+<!-- badges: end -->
+
 minimal HTML element construction for R.
 
 `hypertext` provides a small, deterministic DSL for
