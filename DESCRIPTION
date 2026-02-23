@@ -1,6 +1,6 @@
 Package: hypertext
 Title: 'HTML' Element Construction
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     c(
       person("Kennedy", "Mwavu", , "mwavukennedy@gmail.com", role = c("aut", "cre"),
