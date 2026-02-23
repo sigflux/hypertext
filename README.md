@@ -38,8 +38,11 @@ page <- tags$html(
       class = c("lead", "mb-2"),
       "Server-side HTML."
     ),
+    tags$input(
+      type = "text",
+      placeholder = "enter your nickname"
+    ),
     tags$button(
-      disabled = NA,
       "Click"
     )
   )
@@ -82,8 +85,11 @@ page <- tags$html(
       class = c("lead", "mb-2"),
       "Server-side HTML."
     ),
+    tags$input(
+      type = "text",
+      placeholder = "enter your nickname"
+    ),
     tags$button(
-      disabled = NA,
       "Click"
     )
   )
