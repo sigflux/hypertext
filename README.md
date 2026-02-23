@@ -20,7 +20,7 @@ install.packages("hypertext")
 or get the development version from github:
 
 ```r
-devtools::install_github("kennedymwavu/hypertext")
+devtools::install_github("sigflux/hypertext")
 ```
 
 ## quick start
