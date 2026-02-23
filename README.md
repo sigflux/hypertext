@@ -66,3 +66,37 @@ class(x)
 render(x)
 #> [1] "<p class=\"lead\">hello</p>"
 ```
+
+## usage in frameworks
+
+- [ambiorix](https://ambiorix.dev/):
+
+  ```r
+  library(ambiorix)
+  library(hypertext)
+
+  app <- Ambiorix$new(port = 3000L)
+
+  app$get("/", function(req, res) {
+    html <- tags$h1("hello, world!") |>
+      render()
+
+    res$send(html)
+  })
+
+  app$get("/about", function(req, res) {
+    html <- list(
+      tags$h1("about us"),
+      tags$p(
+        "minimal ",
+        tags$strong("html construction"),
+        " for R."
+      )
+    ) |>
+      render()
+
+    res$send(html)
+  })
+
+  app$start()
+  ```
