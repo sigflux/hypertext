@@ -131,5 +131,20 @@ writeLines(text = content, con = "index.html")
     res$send(html)
   })
 
+  app$get("/team", function(req, res) {
+    teammates <- c("you", "me", "other")
+
+    html <- tags$div(
+      class = "team",
+      tags$p("meet the team:"),
+      tags$ul(
+        lapply(teammates, tags$li)
+      )
+    ) |>
+      render()
+
+    res$send(html)
+  })
+
   app$start()
   ```
