@@ -2,8 +2,11 @@ Package: hypertext
 Title: 'HTML' Element Construction
 Version: 0.0.0.9000
 Authors@R: 
-    person("Kennedy", "Mwavu", , "mwavukennedy@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0009-0006-3157-7234"))
+    c(
+      person("Kennedy", "Mwavu", , "mwavukennedy@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0006-3157-7234")),
+      person("Sigflux", role = c("cph", "fnd"))
+    )
 Description: Provides a small, deterministic Domain-Specific Language for building
     'HTML' nodes and rendering them to a string.
 License: MIT + file LICENSE
