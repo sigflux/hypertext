@@ -63,7 +63,7 @@ x <- tags$p(
 
 # `x` contains the tag tree
 class(x)
-#> [1] "ht_tag"
+#> [1] "hypertext.tag"
 
 # rendering produces an HTML string:
 render(x)

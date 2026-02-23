@@ -2,27 +2,27 @@
 % Please edit documentation in R/tags.R
 \name{render}
 \alias{render}
-\alias{render.ht_tag}
+\alias{render.hypertext.tag}
 \alias{render.default}
 \alias{render.list}
 \title{Render an HTML node tree to a character string}
 \usage{
 render(x)
 
-\method{render}{ht_tag}(x)
+\method{render}{hypertext.tag}(x)
 
 \method{render}{default}(x)
 
 \method{render}{list}(x)
 }
 \arguments{
-\item{x}{An \code{ht_tag} object, a character string, or a list of these.}
+\item{x}{An \code{hypertext.tag} object, a character string, or a list of these.}
 }
 \value{
 A single character string of HTML.
 }
 \description{
-Converts an \code{ht_tag} object (and all its descendants) into an HTML
-string. Text children are escaped; nested \code{ht_tag} children are
+Converts an \code{hypertext.tag} object (and all its descendants) into an HTML
+string. Text children are escaped; nested \code{hypertext.tag} children are
 rendered recursively.
 }

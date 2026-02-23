@@ -15,7 +15,7 @@
 children are ignored.}
 }
 \value{
-A list of class \code{"ht_tag"} with components \code{tag}, \code{attrs},
+A list of class \code{"hypertext.tag"} with components \code{tag}, \code{attrs},
 and \code{children}.
 }
 \description{

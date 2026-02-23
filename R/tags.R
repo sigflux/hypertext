@@ -105,7 +105,7 @@
 #' @param ... Attributes (named) and children (unnamed).
 #' @param .void Logical; if `TRUE` the element is self-closing and
 #'   children are ignored.
-#' @return A list of class `"ht_tag"` with components `tag`, `attrs`,
+#' @return A list of class `"hypertext.tag"` with components `tag`, `attrs`,
 #'   and `children`.
 #' @keywords internal
 .tag <- function(tag_name, ..., .void = FALSE) {
@@ -131,13 +131,13 @@
       attrs = attrs,
       children = children
     ),
-    class = "ht_tag"
+    class = "hypertext.tag"
   )
 }
 
 #' Flatten children
 #'
-#' Recursively unpack plain lists (but not `ht_tag` nodes) so users
+#' Recursively unpack plain lists (but not `hypertext.tag` nodes) so users
 #' can pass `list(tags$li("a"), tags$li("b"))` as a single child
 #' argument.
 #'
@@ -147,7 +147,7 @@
 .flatten_children <- function(x) {
   out <- list()
   for (el in x) {
-    if (is.list(el) && !inherits(el, "ht_tag")) {
+    if (is.list(el) && !inherits(el, "hypertext.tag")) {
       out <- c(out, .flatten_children(el))
       next
     }
@@ -162,11 +162,11 @@
 
 #' Render an HTML node tree to a character string
 #'
-#' Converts an `ht_tag` object (and all its descendants) into an HTML
-#' string. Text children are escaped; nested `ht_tag` children are
+#' Converts an `hypertext.tag` object (and all its descendants) into an HTML
+#' string. Text children are escaped; nested `hypertext.tag` children are
 #' rendered recursively.
 #'
-#' @param x An `ht_tag` object, a character string, or a list of these.
+#' @param x An `hypertext.tag` object, a character string, or a list of these.
 #' @return A single character string of HTML.
 #' @export
 render <- function(x) {
@@ -175,7 +175,7 @@ render <- function(x) {
 
 #' @rdname render
 #' @export
-render.ht_tag <- function(x) {
+render.hypertext.tag <- function(x) {
   attr_str <- .render_attrs(x$attrs)
   is_void <- x$tag %in% .void_elements
 
@@ -219,7 +219,7 @@ render.list <- function(x) {
 # -- print method ----------------------------------------------------
 
 #' @export
-print.ht_tag <- function(x, ...) {
+print.hypertext.tag <- function(x, ...) {
   cat(render(x), "\n")
   invisible(x)
 }

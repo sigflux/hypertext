@@ -13,7 +13,7 @@
 A flat list of children.
 }
 \description{
-Recursively unpack plain lists (but not \code{ht_tag} nodes) so users
+Recursively unpack plain lists (but not \code{hypertext.tag} nodes) so users
 can pass \code{list(tags$li("a"), tags$li("b"))} as a single child
 argument.
 }
