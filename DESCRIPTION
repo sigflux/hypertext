@@ -7,7 +7,7 @@ Authors@R:
            comment = c(ORCID = "0009-0006-3157-7234")),
       person("Sigflux", role = c("cph", "fnd"))
     )
-Description: Provides a small, deterministic Domain-Specific Language for building
+Description: Provides a deterministic, framework-agnostic Domain-Specific Language for building
     'HTML' nodes and rendering them to a string.
 License: MIT + file LICENSE
 URL: https://github.com/sigflux/hypertext

@@ -8,12 +8,11 @@
 
 <!-- badges: end -->
 
-minimal HTML element construction for R.
+html element construction for R.
 
-`hypertext` provides a small, deterministic DSL for
-building HTML nodes in R and rendering them to a string.
-it does not implement templating, dependency management,
-widgets or framework integrations.
+`hypertext` provides a deterministic, framework-agnostic DSL for building
+html nodes and rendering them to a string. it does _not_ implement templating,
+dependency management, widgets or framework integrations.
 
 heavily inspired by [{htmltools}](https://github.com/rstudio/htmltools).
 
