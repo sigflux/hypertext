@@ -67,6 +67,33 @@ render(x)
 #> [1] "<p class=\"lead\">hello</p>"
 ```
 
+## creating html files
+
+```r
+library(hypertext)
+
+page <- tags$html(
+  tags$head(
+    tags$title("hypertext")
+  ),
+  tags$body(
+    tags$h1("Hello"),
+    tags$p(
+      class = c("lead", "mb-2"),
+      "Server-side HTML."
+    ),
+    tags$button(
+      disabled = NA,
+      "Click"
+    )
+  )
+)
+
+content <- render(page)
+
+writeLines(text = content, con = "index.html")
+```
+
 ## usage in frameworks
 
 - [ambiorix](https://ambiorix.dev/):
