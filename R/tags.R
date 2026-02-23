@@ -122,7 +122,9 @@
   children <- list()
   if (isFALSE(.void)) {
     # flatten any bare lists among children so users can splice
-    children <- dots[!attrs_lgl] |> .flatten_children()
+    children <- .flatten_children(
+      dots[!attrs_lgl]
+    )
   }
 
   structure(
