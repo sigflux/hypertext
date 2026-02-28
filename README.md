@@ -109,7 +109,8 @@ writeLines(text = content, con = "index.html")
 
 ## usage in frameworks
 
-- [ambiorix](https://ambiorix.dev/):
+- [ambiorix](https://ambiorix.dev/) is the perfect example of
+  a web framework where you will find {hypertext} useful:
 
   ```r
   library(ambiorix)
@@ -154,4 +155,42 @@ writeLines(text = content, con = "index.html")
   })
 
   app$start()
+  ```
+
+  - [shiny](https://shiny.posit.co/) already has {htmltools} tags
+    internally, so you do not need {hypertext} in your shiny apps,
+    but in case you do:
+
+  ```r
+  library(shiny)
+  library(bslib)
+  library(hypertext)
+
+  # use `hypertext::tags` explicitly to avoid clashing with `shiny::tags`.
+  ht <- hypertext::tags
+
+  card <- function(title, body) {
+    ht$div(
+      class = "card mt-3",
+      ht$div(class = "card-header", title),
+      ht$div(class = "card-body", ht$p(class = "card-text", body))
+    )
+  }
+
+  content <- ht$div(
+    class = "container py-4",
+    card("First card", "Some quick example text."),
+    card("Second card", "Another body of text.")
+  ) |>
+    render()
+
+  ui <- page(
+    theme = bs_theme(version = 5L),
+    # hypertext renders an HTML string, so wrap in shiny::HTML()
+    HTML(content)
+  )
+
+  server <- function(input, output, session) {}
+
+  shinyApp(ui, server)
   ```
