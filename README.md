@@ -157,9 +157,9 @@ writeLines(text = content, con = "index.html")
   app$start()
   ```
 
-  - [shiny](https://shiny.posit.co/) already has {htmltools} tags
-    internally, so you do not need {hypertext} in your shiny apps,
-    but in case you do:
+- [shiny](https://shiny.posit.co/) already has {htmltools} tags
+  internally, so you do not need {hypertext} in your shiny apps,
+  but in case you do:
 
   ```r
   library(shiny)
