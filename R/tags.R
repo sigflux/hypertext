@@ -184,28 +184,69 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
 
 # -- rendering -------------------------------------------------------
 
+.maybe_write <- function(html, con = NULL) {
+  if (is.null(con)) {
+    return(html)
+  }
+
+  writeLines(text = html, con = con)
+
+  invisible(html)
+}
+
 #' Render an HTML node tree to a character string
 #'
-#' Converts an `hypertext.tag` object (and all its descendants) into an HTML
+#' Converts a `hypertext.tag` object (and all its descendants) into an HTML
 #' string. Text children are escaped; nested `hypertext.tag` children are
 #' rendered recursively.
 #'
-#' @param x An `hypertext.tag` object, a character string, or a list of these.
+#' When `con` is provided, the rendered HTML is written to the specified
+#' file or connection via [writeLines()] and the HTML string is returned
+#' invisibly.
+#'
+#' @param x `hypertext.tag` object, a string, or a list of these /// Required.
+#'
+#' @param con A connection object or a character string /// Optional.
+#'            See [writeLines()].
+#'
+#' @param ... Further arguments passed from or to other methods.
+#'
 #' @return A single character string of HTML.
+#'
+#' @examples
+#' page <- tags$html(
+#'   tags$head(
+#'     tags$title("Home")
+#'   ),
+#'   tags$body(
+#'     tags$h1("Welcome")
+#'   )
+#' )
+#'
+#' # return HTML as a string:
+#' render(page)
+#'
+#' \dontrun{
+#'   # write to a file:
+#'   render(page, con = "index.html")
+#' }
+#'
 #' @export
-render <- function(x) {
+render <- function(x, ...) {
   UseMethod("render")
 }
 
 #' @rdname render
 #' @export
-render.hypertext.tag <- function(x) {
+render.hypertext.tag <- function(x, con = NULL, ...) {
   attr_str <- .render_attrs(x$attrs)
   is_void <- identical(x$tag_type, "void") || x$tag %in% .void_elements
 
   if (is_void) {
+    html <- paste0("<", x$tag, attr_str, " />")
+
     return(
-      paste0("<", x$tag, attr_str, " />")
+      .maybe_write(html = html, con = con)
     )
   }
 
@@ -218,19 +259,23 @@ render.hypertext.tag <- function(x) {
     collapse = ""
   )
 
-  paste0("<", x$tag, attr_str, ">", inner, "</", x$tag, ">")
+  html <- paste0("<", x$tag, attr_str, ">", inner, "</", x$tag, ">")
+
+  .maybe_write(html = html, con = con)
 }
 
 #' @rdname render
 #' @export
-render.default <- function(x) {
-  .escape_html(as.character(x))
+render.default <- function(x, con = NULL, ...) {
+  html <- .escape_html(as.character(x))
+
+  .maybe_write(html = html, con = con)
 }
 
 #' @rdname render
 #' @export
-render.list <- function(x) {
-  paste(
+render.list <- function(x, con = NULL, ...) {
+  html <- paste(
     vapply(
       X = x,
       FUN = render,
@@ -238,6 +283,8 @@ render.list <- function(x) {
     ),
     collapse = ""
   )
+
+  .maybe_write(html = html, con = con)
 }
 
 # -- print method ----------------------------------------------------
