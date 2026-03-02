@@ -38,5 +38,5 @@ tag(
 )
 
 # custom void element
-tag("my-icon", name = "home", tag_type = "void")
+tag(tag_name = "my-icon", name = "home", tag_type = "void")
 }

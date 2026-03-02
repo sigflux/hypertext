@@ -7,22 +7,51 @@
 \alias{render.list}
 \title{Render an HTML node tree to a character string}
 \usage{
-render(x)
+render(x, ...)
 
-\method{render}{hypertext.tag}(x)
+\method{render}{hypertext.tag}(x, con = NULL, ...)
 
-\method{render}{default}(x)
+\method{render}{default}(x, con = NULL, ...)
 
-\method{render}{list}(x)
+\method{render}{list}(x, con = NULL, ...)
 }
 \arguments{
-\item{x}{An \code{hypertext.tag} object, a character string, or a list of these.}
+\item{x}{\code{hypertext.tag} object, a string, or a list of these /// Required.}
+
+\item{...}{Further arguments passed from or to other methods.}
+
+\item{con}{A connection object or a character string /// Optional.
+See \code{\link[=writeLines]{writeLines()}}.}
 }
 \value{
 A single character string of HTML.
 }
 \description{
-Converts an \code{hypertext.tag} object (and all its descendants) into an HTML
+Converts a \code{hypertext.tag} object (and all its descendants) into an HTML
 string. Text children are escaped; nested \code{hypertext.tag} children are
 rendered recursively.
+}
+\details{
+When \code{con} is provided, the rendered HTML is written to the specified
+file or connection via \code{\link[=writeLines]{writeLines()}} and the HTML string is returned
+invisibly.
+}
+\examples{
+page <- tags$html(
+  tags$head(
+    tags$title("Home")
+  ),
+  tags$body(
+    tags$h1("Welcome")
+  )
+)
+
+# return HTML as a string:
+render(page)
+
+\dontrun{
+  # write to a file:
+  render(page, con = "index.html")
+}
+
 }
