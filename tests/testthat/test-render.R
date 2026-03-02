@@ -117,3 +117,99 @@ test_that("render.list handles single element", {
   nodes <- list(tags$div("one"))
   expect_equal(render(nodes), "<div>one</div>")
 })
+
+# -- render with con (file output) -----------------------------------------
+
+test_that("render writes tag to a file path and returns invisibly", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  node <- tags$div("hello")
+  result <- withVisible(render(node, con = tmp))
+
+  expect_false(result$visible)
+  expect_equal(result$value, "<div>hello</div>")
+  expect_equal(readLines(tmp), "<div>hello</div>")
+})
+
+test_that("render writes void element to a file path", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  node <- tags$br()
+  render(node, con = tmp)
+
+  expect_equal(readLines(tmp), "<br />")
+})
+
+test_that("render writes nested HTML to a file path", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  page <- tags$html(
+    tags$head(tags$title("Test")),
+    tags$body(tags$h1("Hello"))
+  )
+  render(page, con = tmp)
+
+  expect_equal(
+    readLines(tmp),
+    "<html><head><title>Test</title></head><body><h1>Hello</h1></body></html>"
+  )
+})
+
+test_that("render.default writes text to a file path", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  result <- withVisible(render("a<b", con = tmp))
+
+  expect_false(result$visible)
+  expect_equal(result$value, "a&lt;b")
+  expect_equal(readLines(tmp), "a&lt;b")
+})
+
+test_that("render.list writes concatenated HTML to a file path", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  nodes <- list(tags$p("a"), tags$p("b"))
+  result <- withVisible(render(nodes, con = tmp))
+
+  expect_false(result$visible)
+  expect_equal(result$value, "<p>a</p><p>b</p>")
+  expect_equal(readLines(tmp), "<p>a</p><p>b</p>")
+})
+
+test_that("render writes to a connection object", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  con <- file(tmp, open = "w")
+  on.exit(close(con), add = TRUE)
+
+  node <- tags$div(class = "test", "content")
+  render(node, con = con)
+
+  # flush so readLines sees the output
+  flush(con)
+  expect_equal(readLines(tmp), '<div class="test">content</div>')
+})
+
+test_that("render with con = NULL returns visibly (default behaviour)", {
+  node <- tags$div("hello")
+  result <- withVisible(render(node, con = NULL))
+
+  expect_true(result$visible)
+  expect_equal(result$value, "<div>hello</div>")
+})
+
+test_that("render overwrites existing file content", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  render(tags$p("first"), con = tmp)
+  render(tags$p("second"), con = tmp)
+
+  expect_equal(readLines(tmp), "<p>second</p>")
+})
