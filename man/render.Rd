@@ -9,19 +9,19 @@
 \usage{
 render(x, ...)
 
-\method{render}{hypertext.tag}(x, con = NULL, ...)
+\method{render}{hypertext.tag}(x, file = "", ...)
 
-\method{render}{default}(x, con = NULL, ...)
+\method{render}{default}(x, file = "", ...)
 
-\method{render}{list}(x, con = NULL, ...)
+\method{render}{list}(x, file = "", ...)
 }
 \arguments{
 \item{x}{\code{hypertext.tag} object, a string, or a list of these /// Required.}
 
 \item{...}{Further arguments passed from or to other methods.}
 
-\item{con}{A connection object or a character string /// Optional.
-See \code{\link[=writeLines]{writeLines()}}.}
+\item{file}{A connection object or a character string /// Optional.
+See \code{\link[=cat]{cat()}}.}
 }
 \value{
 A single character string of HTML.
@@ -32,8 +32,8 @@ string. Text children are escaped; nested \code{hypertext.tag} children are
 rendered recursively.
 }
 \details{
-When \code{con} is provided, the rendered HTML is written to the specified
-file or connection via \code{\link[=writeLines]{writeLines()}} and the HTML string is returned
+When \code{file} is provided, the rendered HTML is written to the specified
+file or connection via \code{\link[=cat]{cat()}} and the HTML string is returned
 invisibly.
 }
 \examples{
@@ -51,7 +51,7 @@ render(page)
 
 \dontrun{
   # write to a file:
-  render(page, con = "index.html")
+  render(page, file = "index.html")
 }
 
 }
