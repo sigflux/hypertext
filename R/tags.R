@@ -184,12 +184,22 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
 
 # -- rendering -------------------------------------------------------
 
-.maybe_write <- function(html, file = "") {
+.maybe_write <- function(
+  html,
+  file = "",
+  write_mode = c("overwrite", "append")
+) {
   if (identical(file, "")) {
     return(html)
   }
 
-  cat(html, file = file)
+  write_mode <- match.arg(arg = write_mode)
+
+  cat(
+    html,
+    file = file,
+    append = identical(write_mode, "append")
+  )
 
   invisible(html)
 }
@@ -206,8 +216,13 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
 #'
 #' @param x `hypertext.tag` object, a string, or a list of these /// Required.
 #'
-#' @param file A connection object or a character string /// Optional.
-#'            See [cat()].
+#' @param file String /// Optional.
+#'            Path to file to print to.
+#'
+#' @param write_mode String /// Optional.
+#'                   Either "overwrite" (default) which overwrites the contents
+#'                   of `file`, or "append" which appends the HTML string to
+#'                   `file`.
 #'
 #' @param ... Further arguments passed from or to other methods.
 #'
@@ -238,7 +253,12 @@ render <- function(x, ...) {
 
 #' @rdname render
 #' @export
-render.hypertext.tag <- function(x, file = "", ...) {
+render.hypertext.tag <- function(
+  x,
+  file = "",
+  write_mode = c("overwrite", "append"),
+  ...
+) {
   attr_str <- .render_attrs(x$attrs)
   is_void <- identical(x$tag_type, "void") || x$tag %in% .void_elements
 
@@ -246,7 +266,7 @@ render.hypertext.tag <- function(x, file = "", ...) {
     html <- paste0("<", x$tag, attr_str, " />")
 
     return(
-      .maybe_write(html = html, file = file)
+      .maybe_write(html = html, file = file, write_mode = write_mode)
     )
   }
 
@@ -261,20 +281,30 @@ render.hypertext.tag <- function(x, file = "", ...) {
 
   html <- paste0("<", x$tag, attr_str, ">", inner, "</", x$tag, ">")
 
-  .maybe_write(html = html, file = file)
+  .maybe_write(html = html, file = file, write_mode = write_mode)
 }
 
 #' @rdname render
 #' @export
-render.default <- function(x, file = "", ...) {
+render.default <- function(
+  x,
+  file = "",
+  write_mode = c("overwrite", "append"),
+  ...
+) {
   html <- .escape_html(as.character(x))
 
-  .maybe_write(html = html, file = file)
+  .maybe_write(html = html, file = file, write_mode = write_mode)
 }
 
 #' @rdname render
 #' @export
-render.list <- function(x, file = "", ...) {
+render.list <- function(
+  x,
+  file = "",
+  write_mode = c("overwrite", "append"),
+  ...
+) {
   html <- paste(
     vapply(
       X = x,
@@ -284,7 +314,7 @@ render.list <- function(x, file = "", ...) {
     collapse = ""
   )
 
-  .maybe_write(html = html, file = file)
+  .maybe_write(html = html, file = file, write_mode = write_mode)
 }
 
 # -- print method ----------------------------------------------------
