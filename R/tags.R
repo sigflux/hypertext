@@ -211,7 +211,7 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
 #' rendered recursively.
 #'
 #' When `file` is provided, the rendered HTML is written to the specified
-#' file or connection via [cat()] and the HTML string is returned
+#' file via [cat()] and the HTML string is returned
 #' invisibly.
 #'
 #' @param x `hypertext.tag` object, a string, or a list of these /// Required.

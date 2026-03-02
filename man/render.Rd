@@ -9,19 +9,24 @@
 \usage{
 render(x, ...)
 
-\method{render}{hypertext.tag}(x, file = "", ...)
+\method{render}{hypertext.tag}(x, file = "", write_mode = c("overwrite", "append"), ...)
 
-\method{render}{default}(x, file = "", ...)
+\method{render}{default}(x, file = "", write_mode = c("overwrite", "append"), ...)
 
-\method{render}{list}(x, file = "", ...)
+\method{render}{list}(x, file = "", write_mode = c("overwrite", "append"), ...)
 }
 \arguments{
 \item{x}{\code{hypertext.tag} object, a string, or a list of these /// Required.}
 
 \item{...}{Further arguments passed from or to other methods.}
 
-\item{file}{A connection object or a character string /// Optional.
-See \code{\link[=cat]{cat()}}.}
+\item{file}{String /// Optional.
+Path to file to print to.}
+
+\item{write_mode}{String /// Optional.
+Either "overwrite" (default) which overwrites the contents
+of \code{file}, or "append" which appends the HTML string to
+\code{file}.}
 }
 \value{
 A single character string of HTML.
@@ -33,7 +38,7 @@ rendered recursively.
 }
 \details{
 When \code{file} is provided, the rendered HTML is written to the specified
-file or connection via \code{\link[=cat]{cat()}} and the HTML string is returned
+file via \code{\link[=cat]{cat()}} and the HTML string is returned
 invisibly.
 }
 \examples{
