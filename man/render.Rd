@@ -7,22 +7,56 @@
 \alias{render.list}
 \title{Render an HTML node tree to a character string}
 \usage{
-render(x)
+render(x, ...)
 
-\method{render}{hypertext.tag}(x)
+\method{render}{hypertext.tag}(x, file = "", write_mode = c("overwrite", "append"), ...)
 
-\method{render}{default}(x)
+\method{render}{default}(x, file = "", write_mode = c("overwrite", "append"), ...)
 
-\method{render}{list}(x)
+\method{render}{list}(x, file = "", write_mode = c("overwrite", "append"), ...)
 }
 \arguments{
-\item{x}{An \code{hypertext.tag} object, a character string, or a list of these.}
+\item{x}{\code{hypertext.tag} object, a string, or a list of these /// Required.}
+
+\item{...}{Further arguments passed from or to other methods.}
+
+\item{file}{String /// Optional.
+Path to file to print to.}
+
+\item{write_mode}{String /// Optional.
+Either "overwrite" (default) which overwrites the contents
+of \code{file}, or "append" which appends the HTML string to
+\code{file}.}
 }
 \value{
 A single character string of HTML.
 }
 \description{
-Converts an \code{hypertext.tag} object (and all its descendants) into an HTML
+Converts a \code{hypertext.tag} object (and all its descendants) into an HTML
 string. Text children are escaped; nested \code{hypertext.tag} children are
 rendered recursively.
+}
+\details{
+When \code{file} is provided, the rendered HTML is written to the specified
+file via \code{\link[=cat]{cat()}} and the HTML string is returned
+invisibly.
+}
+\examples{
+page <- tags$html(
+  tags$head(
+    tags$title("Home")
+  ),
+  tags$body(
+    tags$h1("Welcome")
+  )
+)
+
+# return HTML as a string:
+render(page)
+
+\dontrun{
+  # write to a file:
+  render(page, file = "index.html")
+}
+
 }

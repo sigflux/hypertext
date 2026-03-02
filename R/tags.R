@@ -184,28 +184,89 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
 
 # -- rendering -------------------------------------------------------
 
+.maybe_write <- function(
+  html,
+  file = "",
+  write_mode = c("overwrite", "append")
+) {
+  if (identical(file, "")) {
+    return(html)
+  }
+
+  write_mode <- match.arg(arg = write_mode)
+
+  cat(
+    html,
+    file = file,
+    append = identical(write_mode, "append")
+  )
+
+  invisible(html)
+}
+
 #' Render an HTML node tree to a character string
 #'
-#' Converts an `hypertext.tag` object (and all its descendants) into an HTML
+#' Converts a `hypertext.tag` object (and all its descendants) into an HTML
 #' string. Text children are escaped; nested `hypertext.tag` children are
 #' rendered recursively.
 #'
-#' @param x An `hypertext.tag` object, a character string, or a list of these.
+#' When `file` is provided, the rendered HTML is written to the specified
+#' file via [cat()] and the HTML string is returned
+#' invisibly.
+#'
+#' @param x `hypertext.tag` object, a string, or a list of these /// Required.
+#'
+#' @param file String /// Optional.
+#'            Path to file to print to.
+#'
+#' @param write_mode String /// Optional.
+#'                   Either "overwrite" (default) which overwrites the contents
+#'                   of `file`, or "append" which appends the HTML string to
+#'                   `file`.
+#'
+#' @param ... Further arguments passed from or to other methods.
+#'
 #' @return A single character string of HTML.
+#'
+#' @examples
+#' page <- tags$html(
+#'   tags$head(
+#'     tags$title("Home")
+#'   ),
+#'   tags$body(
+#'     tags$h1("Welcome")
+#'   )
+#' )
+#'
+#' # return HTML as a string:
+#' render(page)
+#'
+#' \dontrun{
+#'   # write to a file:
+#'   render(page, file = "index.html")
+#' }
+#'
 #' @export
-render <- function(x) {
+render <- function(x, ...) {
   UseMethod("render")
 }
 
 #' @rdname render
 #' @export
-render.hypertext.tag <- function(x) {
+render.hypertext.tag <- function(
+  x,
+  file = "",
+  write_mode = c("overwrite", "append"),
+  ...
+) {
   attr_str <- .render_attrs(x$attrs)
   is_void <- identical(x$tag_type, "void") || x$tag %in% .void_elements
 
   if (is_void) {
+    html <- paste0("<", x$tag, attr_str, " />")
+
     return(
-      paste0("<", x$tag, attr_str, " />")
+      .maybe_write(html = html, file = file, write_mode = write_mode)
     )
   }
 
@@ -218,19 +279,33 @@ render.hypertext.tag <- function(x) {
     collapse = ""
   )
 
-  paste0("<", x$tag, attr_str, ">", inner, "</", x$tag, ">")
+  html <- paste0("<", x$tag, attr_str, ">", inner, "</", x$tag, ">")
+
+  .maybe_write(html = html, file = file, write_mode = write_mode)
 }
 
 #' @rdname render
 #' @export
-render.default <- function(x) {
-  .escape_html(as.character(x))
+render.default <- function(
+  x,
+  file = "",
+  write_mode = c("overwrite", "append"),
+  ...
+) {
+  html <- .escape_html(as.character(x))
+
+  .maybe_write(html = html, file = file, write_mode = write_mode)
 }
 
 #' @rdname render
 #' @export
-render.list <- function(x) {
-  paste(
+render.list <- function(
+  x,
+  file = "",
+  write_mode = c("overwrite", "append"),
+  ...
+) {
+  html <- paste(
     vapply(
       X = x,
       FUN = render,
@@ -238,6 +313,8 @@ render.list <- function(x) {
     ),
     collapse = ""
   )
+
+  .maybe_write(html = html, file = file, write_mode = write_mode)
 }
 
 # -- print method ----------------------------------------------------

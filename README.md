@@ -79,6 +79,9 @@ render(x)
 
 ## creating html files
 
+you can `render()` directly to an html file by supplying
+the `file` parameter:
+
 ```r
 library(hypertext)
 
@@ -102,9 +105,7 @@ page <- tags$html(
   )
 )
 
-content <- render(page)
-
-writeLines(text = content, con = "index.html")
+render(x = page, file = "index.html")
 ```
 
 ## custom tags

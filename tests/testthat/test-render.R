@@ -117,3 +117,193 @@ test_that("render.list handles single element", {
   nodes <- list(tags$div("one"))
   expect_equal(render(nodes), "<div>one</div>")
 })
+
+# -- render with file (file output) ----------------------------------------
+
+test_that("render writes tag to a file path and returns invisibly", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  node <- tags$div("hello")
+  result <- withVisible(render(node, file = tmp))
+
+  expect_false(result$visible)
+  expect_equal(result$value, "<div>hello</div>")
+  expect_equal(readLines(tmp, warn = FALSE), "<div>hello</div>")
+})
+
+test_that("render writes void element to a file path", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  node <- tags$br()
+  render(node, file = tmp)
+
+  expect_equal(readLines(tmp, warn = FALSE), "<br />")
+})
+
+test_that("render writes nested HTML to a file path", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  page <- tags$html(
+    tags$head(tags$title("Test")),
+    tags$body(tags$h1("Hello"))
+  )
+  render(page, file = tmp)
+
+  expect_equal(
+    readLines(tmp, warn = FALSE),
+    "<html><head><title>Test</title></head><body><h1>Hello</h1></body></html>"
+  )
+})
+
+test_that("render.default writes text to a file path", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  result <- withVisible(render("a<b", file = tmp))
+
+  expect_false(result$visible)
+  expect_equal(result$value, "a&lt;b")
+  expect_equal(readLines(tmp, warn = FALSE), "a&lt;b")
+})
+
+test_that("render.list writes concatenated HTML to a file path", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  nodes <- list(tags$p("a"), tags$p("b"))
+  result <- withVisible(render(nodes, file = tmp))
+
+  expect_false(result$visible)
+  expect_equal(result$value, "<p>a</p><p>b</p>")
+  expect_equal(readLines(tmp, warn = FALSE), "<p>a</p><p>b</p>")
+})
+
+test_that("render writes to a connection object", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  con <- file(tmp, open = "w")
+  on.exit(close(con), add = TRUE)
+
+  node <- tags$div(class = "test", "content")
+  render(node, file = con)
+
+  # flush so readLines sees the output
+  flush(con)
+  expect_equal(readLines(tmp, warn = FALSE), '<div class="test">content</div>')
+})
+
+test_that("render with file = '' returns visibly (default behaviour)", {
+  node <- tags$div("hello")
+  result <- withVisible(render(node, file = ""))
+
+  expect_true(result$visible)
+  expect_equal(result$value, "<div>hello</div>")
+})
+
+test_that("render overwrites existing file content", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  render(tags$p("first"), file = tmp)
+  render(tags$p("second"), file = tmp)
+
+  expect_equal(readLines(tmp, warn = FALSE), "<p>second</p>")
+})
+
+# -- render with write_mode ------------------------------------------------
+
+test_that("render overwrites file when write_mode = 'overwrite' explicitly", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  render(tags$p("first"), file = tmp)
+  render(tags$p("second"), file = tmp, write_mode = "overwrite")
+
+  expect_equal(readLines(tmp, warn = FALSE), "<p>second</p>")
+})
+
+test_that("render.hypertext.tag appends to file when write_mode = 'append'", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  render(tags$p("first"), file = tmp)
+  render(tags$p("second"), file = tmp, write_mode = "append")
+
+  expect_equal(
+    readLines(tmp, warn = FALSE),
+    "<p>first</p><p>second</p>"
+  )
+})
+
+test_that("render.default appends to file when write_mode = 'append'", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  render("hello", file = tmp)
+  render(" world", file = tmp, write_mode = "append")
+
+  expect_equal(readLines(tmp, warn = FALSE), "hello world")
+})
+
+test_that("render.list appends to file when write_mode = 'append'", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  render(list(tags$p("a")), file = tmp)
+  render(list(tags$p("b")), file = tmp, write_mode = "append")
+
+  expect_equal(readLines(tmp, warn = FALSE), "<p>a</p><p>b</p>")
+})
+
+test_that("render appends across multiple calls with write_mode = 'append'", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  render(tags$h1("Title"), file = tmp)
+  render(tags$p("para 1"), file = tmp, write_mode = "append")
+  render(tags$p("para 2"), file = tmp, write_mode = "append")
+
+  expect_equal(
+    readLines(tmp, warn = FALSE),
+    "<h1>Title</h1><p>para 1</p><p>para 2</p>"
+  )
+})
+
+test_that("render errors on invalid write_mode value", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  expect_error(
+    render(tags$p("x"), file = tmp, write_mode = "bogus"),
+    "arg"
+  )
+})
+
+test_that("render appends to connection object with write_mode = 'append'", {
+  tmp <- tempfile(fileext = ".html")
+  on.exit(unlink(tmp), add = TRUE)
+
+  con <- file(tmp, open = "w")
+  on.exit(close(con), add = TRUE)
+
+  render(tags$p("first"), file = con)
+  render(tags$p("second"), file = con, write_mode = "append")
+
+  flush(con)
+  expect_equal(
+    readLines(tmp, warn = FALSE),
+    "<p>first</p><p>second</p>"
+  )
+})
+
+test_that("write_mode is ignored when file = '' (returns visibly)", {
+  node <- tags$div("hello")
+  result <- withVisible(render(node, file = "", write_mode = "append"))
+
+  expect_true(result$visible)
+  expect_equal(result$value, "<div>hello</div>")
+})
