@@ -18,14 +18,14 @@ test_that(".flatten_children recursively unpacks nested lists", {
 })
 
 test_that(".flatten_children preserves hypertext.tag objects", {
-  tag_node <- hypertext:::.tag("span", "text")
+  tag_node <- hypertext::tag("span", "text")
   result <- hypertext:::.flatten_children(list(tag_node))
   expect_length(result, 1)
   expect_s3_class(result[[1]], "hypertext.tag")
 })
 
 test_that(".flatten_children unpacks lists but preserves tags inside", {
-  tag_node <- hypertext:::.tag("li", "item")
+  tag_node <- hypertext::tag("li", "item")
   result <- hypertext:::.flatten_children(list(list(tag_node, "text")))
   expect_length(result, 2)
   expect_s3_class(result[[1]], "hypertext.tag")
@@ -34,7 +34,7 @@ test_that(".flatten_children unpacks lists but preserves tags inside", {
 
 test_that(".flatten_children handles lapply-style output", {
   items <- c("a", "b", "c")
-  tag_list <- lapply(items, function(x) hypertext:::.tag("li", x))
+  tag_list <- lapply(items, function(x) hypertext::tag("li", x))
   result <- hypertext:::.flatten_children(list(tag_list))
   expect_length(result, 3)
   for (i in seq_along(result)) {
