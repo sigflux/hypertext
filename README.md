@@ -107,6 +107,52 @@ content <- render(page)
 writeLines(text = content, con = "index.html")
 ```
 
+## custom tags
+
+`tag()` creates elements for any tag name, including web components and
+custom elements not in the built-in `tags` list. it takes 3 arguments:
+
+- `tag_name`: name of the html element.
+- `...`: attributes (named) & children (unnamed).
+- `tag_type`: either "normal" (default) for the standard html
+  elements, or "void" for the self-closing elements.
+
+```r
+library(hypertext)
+
+content <- tag(tag_name = "calcite-action-bar", layout = "horizontal")
+render(content)
+#> [1] "<calcite-action-bar layout=\"horizontal\"></calcite-action-bar>"
+```
+
+nest them freely with each other and with built-in tags:
+
+```r
+page <- tags$div(
+  class = "app",
+  tag(
+    tag_name = "calcite-shell",
+    tag(tag_name = "calcite-shell-panel", slot = "panel-start",
+      tag(tag_name = "calcite-action-bar",
+        tag(tag_name = "calcite-action", text = "Layers", icon = "layers"),
+        tag(tag_name = "calcite-action", text = "Basemaps", icon = "basemap")
+      )
+    ),
+    tags$div(id = "map")
+  )
+)
+
+render(page)
+```
+
+for self-closing elements, set `tag_type = "void"`:
+
+```r
+content <- tag(tag_name = "my-icon", name = "home", tag_type = "void")
+render(content)
+#> [1] "<my-icon name=\"home\" />"
+```
+
 ## usage in frameworks
 
 - [ambiorix](https://ambiorix.dev/) is the perfect example of
