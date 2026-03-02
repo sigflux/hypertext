@@ -80,7 +80,7 @@ render(x)
 ## creating html files
 
 you can `render()` directly to an html file by supplying
-the `con` parameter:
+the `file` parameter:
 
 ```r
 library(hypertext)
