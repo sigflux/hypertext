@@ -98,17 +98,38 @@
 #' Create an HTML element node
 #'
 #' Low-level constructor. Named arguments become attributes; unnamed
-#' arguments become children (text or nested nodes). This function is
-#' used internally by every entry in the [tags] list.
+#' arguments become children (text or nested nodes).
 #'
-#' @param tag_name Character scalar -- the HTML element name.
-#' @param ... Attributes (named) and children (unnamed).
-#' @param .void Logical; if `TRUE` the element is self-closing and
-#'   children are ignored.
-#' @return A list of class `"hypertext.tag"` with components `tag`, `attrs`,
-#'   and `children`.
-#' @keywords internal
-.tag <- function(tag_name, ..., .void = FALSE) {
+#' @param tag_name String /// Required.
+#'                 The HTML element name.
+#'
+#' @param ... Attributes (named) and children (unnamed) /// Optional.
+#'
+#' @param tag_type String /// Optional.
+#'                 Either `"normal"` (default) for a standard
+#'                 element with children, or `"void"` for a self-closing element
+#'                 whose children are ignored.
+#'
+#' @return List of class `"hypertext.tag"` with components `tag`, `attrs`,
+#'        `children`, and `tag_type`.
+#'
+#' @examples
+#' # web component
+#' tag(tag_name = "calcite-action-bar", layout = "horizontal")
+#'
+#' # custom element with children
+#' tag(
+#'   tag_name = "my-card",
+#'   class = "shadow",
+#'   tag(tag_name = "my-card-header", "Title"),
+#'   tag(tag_name = "my-card-body", "Content")
+#' )
+#'
+#' # custom void element
+#' tag(tag_name = "my-icon", name = "home", tag_type = "void")
+#' @export
+tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
+  tag_type <- match.arg(arg = tag_type)
   dots <- list(...)
 
   nms <- names(dots)
@@ -120,7 +141,7 @@
   attrs <- dots[attrs_lgl]
 
   children <- list()
-  if (isFALSE(.void)) {
+  if (identical(tag_type, "normal")) {
     # flatten any bare lists among children so users can splice
     children <- .flatten_children(
       dots[!attrs_lgl]
@@ -131,7 +152,8 @@
     list(
       tag = tag_name,
       attrs = attrs,
-      children = children
+      children = children,
+      tag_type = tag_type
     ),
     class = "hypertext.tag"
   )
@@ -179,7 +201,7 @@ render <- function(x) {
 #' @export
 render.hypertext.tag <- function(x) {
   attr_str <- .render_attrs(x$attrs)
-  is_void <- x$tag %in% .void_elements
+  is_void <- identical(x$tag_type, "void") || x$tag %in% .void_elements
 
   if (is_void) {
     return(
@@ -234,7 +256,7 @@ print.hypertext.tag <- function(x, ...) {
   force(tag_name)
 
   function(...) {
-    .tag(
+    tag(
       tag_name,
       ...
     )
@@ -247,10 +269,10 @@ print.hypertext.tag <- function(x, ...) {
   force(tag_name)
 
   function(...) {
-    .tag(
+    tag(
       tag_name,
       ...,
-      .void = TRUE
+      tag_type = "void"
     )
   }
 }
