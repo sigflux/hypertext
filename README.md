@@ -77,8 +77,6 @@ render(x)
 #> [1] "<p class=\"lead\">hello</p>"
 ```
 
-## creating html files
-
 you can `render()` directly to an html file by supplying
 the `file` parameter:
 
@@ -108,6 +106,25 @@ page <- tags$html(
 render(x = page, file = "index.html")
 ```
 
+## tag lists
+
+`tag_list()` groups sibling nodes without wrapping them in a parent element.
+
+```r
+library(hypertext)
+
+header <- tag_list(
+  tags$h1("hello"),
+  tags$p(
+    class = "lead",
+    "welcome aboard."
+  )
+)
+
+render(header)
+#> [1] "<h1>hello</h1><p class=\"lead\">welcome aboard.</p>"
+```
+
 ## custom tags
 
 `tag()` creates elements for any tag name, including web components and
@@ -121,7 +138,11 @@ custom elements not in the built-in `tags` list. it takes 3 arguments:
 ```r
 library(hypertext)
 
-content <- tag(tag_name = "calcite-action-bar", layout = "horizontal")
+content <- tag(
+  tag_name = "calcite-action-bar",
+  layout = "horizontal"
+)
+
 render(content)
 #> [1] "<calcite-action-bar layout=\"horizontal\"></calcite-action-bar>"
 ```
@@ -133,10 +154,21 @@ page <- tags$div(
   class = "app",
   tag(
     tag_name = "calcite-shell",
-    tag(tag_name = "calcite-shell-panel", slot = "panel-start",
-      tag(tag_name = "calcite-action-bar",
-        tag(tag_name = "calcite-action", text = "Layers", icon = "layers"),
-        tag(tag_name = "calcite-action", text = "Basemaps", icon = "basemap")
+    tag(
+      tag_name = "calcite-shell-panel",
+      slot = "panel-start",
+      tag(
+        tag_name = "calcite-action-bar",
+        tag(
+          tag_name = "calcite-action",
+          text = "Layers",
+          icon = "layers"
+        ),
+        tag(
+          tag_name = "calcite-action",
+          text = "Basemaps",
+          icon = "basemap"
+        )
       )
     ),
     tags$div(id = "map")
@@ -149,7 +181,12 @@ render(page)
 for self-closing elements, set `tag_type = "void"`:
 
 ```r
-content <- tag(tag_name = "my-icon", name = "home", tag_type = "void")
+content <- tag(
+  tag_name = "my-icon",
+  name = "home",
+  tag_type = "void"
+)
+
 render(content)
 #> [1] "<my-icon name=\"home\" />"
 ```
@@ -173,7 +210,7 @@ render(content)
   })
 
   app$get("/about", function(req, res) {
-    html <- list(
+    html <- tag_list(
       tags$h1("about us"),
       tags$p(
         "minimal ",
@@ -219,8 +256,17 @@ render(content)
   card <- function(title, body) {
     ht$div(
       class = "card mt-3",
-      ht$div(class = "card-header", title),
-      ht$div(class = "card-body", ht$p(class = "card-text", body))
+      ht$div(
+        class = "card-header",
+        title
+      ),
+      ht$div(
+        class = "card-body",
+        ht$p(
+          class = "card-text",
+          body
+        )
+      )
     )
   }
 
