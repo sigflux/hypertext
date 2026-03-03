@@ -77,8 +77,6 @@ render(x)
 #> [1] "<p class=\"lead\">hello</p>"
 ```
 
-## creating html files
-
 you can `render()` directly to an html file by supplying
 the `file` parameter:
 
@@ -106,6 +104,25 @@ page <- tags$html(
 )
 
 render(x = page, file = "index.html")
+```
+
+## tag lists
+
+`tag_list()` groups sibling nodes without wrapping them in a parent element.
+
+```r
+library(hypertext)
+
+header <- tag_list(
+  tags$h1("hello"),
+  tags$p(
+    class = "lead",
+    "welcome aboard."
+  )
+)
+
+render(header)
+#> [1] "<h1>hello</h1><p class=\"lead\">welcome aboard.</p>"
 ```
 
 ## custom tags
@@ -193,7 +210,7 @@ render(content)
   })
 
   app$get("/about", function(req, res) {
-    html <- list(
+    html <- tag_list(
       tags$h1("about us"),
       tags$p(
         "minimal ",
