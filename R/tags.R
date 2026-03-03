@@ -179,6 +179,51 @@ tag_list <- function(...) {
   )
 }
 
+#' Mark a string as raw HTML
+#'
+#' Wraps one or more character strings so that [render()] outputs them
+#' verbatim, **without** escaping HTML special characters.
+#'
+#' This is useful for injecting pre-rendered HTML, inline
+#' `<script>`/`<style>` blocks, SVG markup, or any content that should
+#' not be entity-escaped.
+#'
+#' @param ... Character strings of raw HTML /// Optional.
+#'
+#' @return A character vector of class `"hypertext.raw"`.
+#'
+#' @examples
+#' raw_html("<script>alert('hi')</script>")
+#' render(tags$div(raw_html("<em>already formatted</em>")))
+#' @export
+raw_html <- function(...) {
+  structure(
+    paste(..., collapse = ""),
+    class = "hypertext.raw"
+  )
+}
+
+#' Render the `<!DOCTYPE html>` declaration
+#'
+#' Convenience wrapper around [raw_html()] that returns the
+#' HTML5 document-type declaration. Useful when building a full page.
+#'
+#' @return A `"hypertext.raw"` object containing `<!DOCTYPE html>`.
+#'
+#' @examples
+#' page <- tag_list(
+#'   doctype(),
+#'   tags$html(
+#'     tags$head(tags$title("Home")),
+#'     tags$body(tags$h1("Welcome"))
+#'   )
+#' )
+#' render(page)
+#' @export
+doctype <- function() {
+  raw_html("<!DOCTYPE html>")
+}
+
 #' Flatten children
 #'
 #' Recursively unpack plain lists (but not `hypertext.tag` or
@@ -194,7 +239,8 @@ tag_list <- function(...) {
     if (
       is.list(el) &&
         !inherits(el, "hypertext.tag") &&
-        !inherits(el, "hypertext.tag.list")
+        !inherits(el, "hypertext.tag.list") &&
+        !inherits(el, "hypertext.raw")
     ) {
       out <- c(out, .flatten_children(el))
       next
@@ -323,6 +369,19 @@ render.default <- function(
 
 #' @rdname render
 #' @export
+render.hypertext.raw <- function(
+  x,
+  file = "",
+  write_mode = c("overwrite", "append"),
+  ...
+) {
+  html <- as.character(x)
+
+  .maybe_write(html = html, file = file, write_mode = write_mode)
+}
+
+#' @rdname render
+#' @export
 render.list <- function(
   x,
   file = "",
@@ -351,6 +410,9 @@ print.hypertext.tag <- function(x, ...) {
 
 #' @export
 print.hypertext.tag.list <- print.hypertext.tag
+
+#' @export
+print.hypertext.raw <- print.hypertext.tag
 
 # -- tag factory helpers ---------------------------------------------
 

@@ -4,6 +4,7 @@
 \alias{render}
 \alias{render.hypertext.tag}
 \alias{render.default}
+\alias{render.hypertext.raw}
 \alias{render.list}
 \title{Render an HTML node tree to a character string}
 \usage{
@@ -12,6 +13,8 @@ render(x, ...)
 \method{render}{hypertext.tag}(x, file = "", write_mode = c("overwrite", "append"), ...)
 
 \method{render}{default}(x, file = "", write_mode = c("overwrite", "append"), ...)
+
+\method{render}{hypertext.raw}(x, file = "", write_mode = c("overwrite", "append"), ...)
 
 \method{render}{list}(x, file = "", write_mode = c("overwrite", "append"), ...)
 }

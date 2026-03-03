@@ -35,22 +35,25 @@ devtools::install_github("sigflux/hypertext")
 ```r
 library(hypertext)
 
-page <- tags$html(
-  tags$head(
-    tags$title("hypertext")
-  ),
-  tags$body(
-    tags$h1("Hello"),
-    tags$p(
-      class = c("lead", "mb-2"),
-      "Server-side HTML."
+page <- tag_list(
+  doctype(),
+  tags$html(
+    tags$head(
+      tags$title("hypertext")
     ),
-    tags$input(
-      type = "text",
-      placeholder = "enter your nickname"
-    ),
-    tags$button(
-      "Click"
+    tags$body(
+      tags$h1("Hello"),
+      tags$p(
+        class = c("lead", "mb-2"),
+        "Server-side HTML."
+      ),
+      tags$input(
+        type = "text",
+        placeholder = "enter your nickname"
+      ),
+      tags$button(
+        "Click"
+      )
     )
   )
 )
@@ -83,22 +86,25 @@ the `file` parameter:
 ```r
 library(hypertext)
 
-page <- tags$html(
-  tags$head(
-    tags$title("hypertext")
-  ),
-  tags$body(
-    tags$h1("Hello"),
-    tags$p(
-      class = c("lead", "mb-2"),
-      "Server-side HTML."
+page <- tag_list(
+  doctype(),
+  tags$html(
+    tags$head(
+      tags$title("hypertext")
     ),
-    tags$input(
-      type = "text",
-      placeholder = "enter your nickname"
-    ),
-    tags$button(
-      "Click"
+    tags$body(
+      tags$h1("Hello"),
+      tags$p(
+        class = c("lead", "mb-2"),
+        "Server-side HTML."
+      ),
+      tags$input(
+        type = "text",
+        placeholder = "enter your nickname"
+      ),
+      tags$button(
+        "Click"
+      )
     )
   )
 )
@@ -124,6 +130,25 @@ header <- tag_list(
 render(header)
 #> [1] "<h1>hello</h1><p class=\"lead\">welcome aboard.</p>"
 ```
+
+## raw html
+
+`raw_html()` marks a string as pre-rendered HTML so that `render()` outputs
+it verbatim, without escaping. useful for injecting inline scripts, styles,
+SVG markup, or any content that is already valid HTML.
+
+```r
+library(hypertext)
+
+page <- tags$div(
+  raw_html("<svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='40'/></svg>")
+)
+
+render(page)
+#> [1] "<div><svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='40'/></svg></div>"
+```
+
+`doctype()` is a convenience wrapper around `raw_html("<!DOCTYPE html>")`.
 
 ## custom tags
 
