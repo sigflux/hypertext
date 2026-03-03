@@ -159,11 +159,31 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
   )
 }
 
+#' Create a tag list (sibling container)
+#'
+#' Useful when you want to collect sibling nodes into a single
+#' object without wrapping them in a parent element.
+#'
+#' @param ... Tags, text, or other renderable objects /// Optional.
+#'
+#' @return A list of class `"hypertext.tag.list"`.
+#'
+#' @examples
+#' tl <- tag_list(tags$p("one"), tags$p("two"))
+#' render(tl)
+#' @export
+tag_list <- function(...) {
+  structure(
+    list(...),
+    class = c("hypertext.tag.list", "list")
+  )
+}
+
 #' Flatten children
 #'
-#' Recursively unpack plain lists (but not `hypertext.tag` nodes) so users
-#' can pass `list(tags$li("a"), tags$li("b"))` as a single child
-#' argument.
+#' Recursively unpack plain lists (but not `hypertext.tag` or
+#' `hypertext.tag.list` nodes) so users can pass
+#' `list(tags$li("a"), tags$li("b"))` as a single child argument.
 #'
 #' @param x A list of children.
 #' @return A flat list of children.
@@ -171,7 +191,11 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
 .flatten_children <- function(x) {
   out <- list()
   for (el in x) {
-    if (is.list(el) && !inherits(el, "hypertext.tag")) {
+    if (
+      is.list(el) &&
+        !inherits(el, "hypertext.tag") &&
+        !inherits(el, "hypertext.tag.list")
+    ) {
       out <- c(out, .flatten_children(el))
       next
     }
@@ -324,6 +348,9 @@ print.hypertext.tag <- function(x, ...) {
   cat(render(x), "\n")
   invisible(x)
 }
+
+#' @export
+print.hypertext.tag.list <- print.hypertext.tag
 
 # -- tag factory helpers ---------------------------------------------
 
