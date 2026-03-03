@@ -203,6 +203,27 @@ raw_html <- function(...) {
   )
 }
 
+#' Render the `<!DOCTYPE html>` declaration
+#'
+#' Convenience wrapper around [raw_html()] that returns the
+#' HTML5 document-type declaration. Useful when building a full page.
+#'
+#' @return A `"hypertext.raw"` object containing `<!DOCTYPE html>`.
+#'
+#' @examples
+#' page <- tag_list(
+#'   doctype(),
+#'   tags$html(
+#'     tags$head(tags$title("Home")),
+#'     tags$body(tags$h1("Welcome"))
+#'   )
+#' )
+#' render(page)
+#' @export
+doctype <- function() {
+  raw_html("<!DOCTYPE html>")
+}
+
 #' Flatten children
 #'
 #' Recursively unpack plain lists (but not `hypertext.tag` or
