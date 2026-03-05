@@ -11,8 +11,10 @@
 html element construction for R.
 
 `hypertext` provides a deterministic, framework-agnostic DSL for building
-html nodes and rendering them to a string. it does _not_ implement templating,
-dependency management, widgets or framework integrations.
+html nodes and rendering them to a string.
+
+it does **not** implement templating, dependency management, widgets
+or framework integrations.
 
 heavily inspired by [{htmltools}](https://github.com/rstudio/htmltools).
 
