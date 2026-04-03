@@ -46,3 +46,18 @@ test_that(".flatten_children preserves numeric elements", {
   result <- hypertext:::.flatten_children(list(1, 2, 3))
   expect_equal(result, list(1, 2, 3))
 })
+
+test_that(".flatten_children drops NULL elements", {
+  result <- hypertext:::.flatten_children(list("a", NULL, "b"))
+  expect_equal(result, list("a", "b"))
+})
+
+test_that(".flatten_children drops NULL inside nested lists", {
+  result <- hypertext:::.flatten_children(list(list("a", NULL, "b")))
+  expect_equal(result, list("a", "b"))
+})
+
+test_that(".flatten_children handles all-NULL input", {
+  result <- hypertext:::.flatten_children(list(NULL, NULL))
+  expect_equal(result, list())
+})

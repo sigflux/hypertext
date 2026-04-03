@@ -20,6 +20,20 @@ test_that("tag_list with no arguments produces empty tag list", {
   expect_length(tl, 0L)
 })
 
+test_that("tag_list drops NULL elements", {
+  tl <- tag_list(tags$p("a"), NULL, tags$p("b"))
+  expect_s3_class(tl, "hypertext.tag.list")
+  expect_length(tl, 2L)
+  expect_equal(render(tl), "<p>a</p><p>b</p>")
+})
+
+test_that("tag_list with only NULL produces empty tag list", {
+  tl <- tag_list(NULL)
+  expect_s3_class(tl, "hypertext.tag.list")
+  expect_length(tl, 0L)
+  expect_equal(render(tl), "")
+})
+
 test_that("tag_list accepts mixed tags and text", {
   tl <- tag_list("hello ", tags$strong("world"))
   expect_length(tl, 2L)

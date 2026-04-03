@@ -118,3 +118,20 @@ test_that("tag() drops FALSE and NULL attributes", {
   html <- render(tag("my-el", hidden = FALSE, data = NULL))
   expect_equal(html, "<my-el></my-el>")
 })
+
+test_that("tag() drops NULL children", {
+  node <- tag("p", "this", NULL)
+  expect_equal(node$children, list("this"))
+  expect_equal(render(node), "<p>this</p>")
+})
+
+test_that("tags$p drops NULL children", {
+  html <- render(tags$p("this", NULL))
+  expect_equal(html, "<p>this</p>")
+})
+
+test_that("tag() handles only NULL children", {
+  node <- tag("div", NULL)
+  expect_equal(node$children, list())
+  expect_equal(render(node), "<div></div>")
+})
