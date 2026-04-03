@@ -173,8 +173,13 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
 #' render(tl)
 #' @export
 tag_list <- function(...) {
+  children <- Filter(
+    f = Negate(is.null),
+    x = list(...)
+  )
+
   structure(
-    list(...),
+    children,
     class = c("hypertext.tag.list", "list")
   )
 }
@@ -236,6 +241,10 @@ doctype <- function() {
 .flatten_children <- function(x) {
   out <- list()
   for (el in x) {
+    if (is.null(el)) {
+      next
+    }
+
     if (
       is.list(el) &&
         !inherits(el, "hypertext.tag") &&
