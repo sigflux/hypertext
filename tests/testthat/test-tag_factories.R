@@ -1,4 +1,4 @@
-# -- .make_tag and .make_void_tag factories --------------------------------
+# -- .make_tag --------------------------------
 
 test_that(".make_tag returns a function", {
   fn <- hypertext:::.make_tag("div")
@@ -14,20 +14,6 @@ test_that(".make_tag creates correct tag nodes", {
   expect_equal(node$children[[1]], "content")
 })
 
-test_that(".make_void_tag returns a function", {
-  fn <- hypertext:::.make_void_tag("hr")
-  expect_true(is.function(fn))
-})
-
-test_that(".make_void_tag creates void tag nodes (no children)", {
-  fn <- hypertext:::.make_void_tag("input")
-  node <- fn(type = "email", "ignored child")
-  expect_s3_class(node, "hypertext.tag")
-  expect_equal(node$tag, "input")
-  expect_equal(node$attrs$type, "email")
-  expect_length(node$children, 0)
-})
-
 test_that(".make_tag captures tag_name correctly via force()", {
   # Create functions in a loop to test closure capture
   fns <- list()
@@ -37,16 +23,6 @@ test_that(".make_tag captures tag_name correctly via force()", {
   expect_equal(fns$div()$tag, "div")
   expect_equal(fns$span()$tag, "span")
   expect_equal(fns$p()$tag, "p")
-})
-
-test_that(".make_void_tag captures tag_name correctly via force()", {
-  fns <- list()
-  for (name in c("br", "hr", "img")) {
-    fns[[name]] <- hypertext:::.make_void_tag(name)
-  }
-  expect_equal(fns$br()$tag, "br")
-  expect_equal(fns$hr()$tag, "hr")
-  expect_equal(fns$img()$tag, "img")
 })
 
 # -- the `tags` list -------------------------------------------------------
