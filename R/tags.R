@@ -173,9 +173,25 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
 #' render(tl)
 #' @export
 tag_list <- function(...) {
+  dots <- match.call()
+  dots_envir <- parent.frame()
+
+  n <- length(dots)
+  dots[[1L]] <- base::list
+
+  has_trailing_comma <- identical(dots[[n]], quote(expr = ))
+  if (has_trailing_comma) {
+    dots <- dots[-n]
+  }
+
+  dots <- eval(
+    expr = dots,
+    envir = dots_envir
+  )
+
   children <- Filter(
     f = Negate(is.null),
-    x = list(...)
+    x = dots
   )
 
   structure(
@@ -425,30 +441,37 @@ print.hypertext.raw <- print.hypertext.tag
 
 # -- tag factory helpers ---------------------------------------------
 
-#' Create a tag function for a normal (non-void) element
+#' Create a tag function
+#'
 #' @keywords internal
-.make_tag <- function(tag_name) {
+.make_tag <- function(
+  tag_name,
+  tag_type = c("normal", "void")
+) {
   force(tag_name)
+  tag_type <- match.arg(arg = tag_type)
 
   function(...) {
-    tag(
-      tag_name,
-      ...
-    )
-  }
-}
+    dots <- match.call()
+    dots_envir <- parent.frame()
 
-#' Create a tag function for a void (self-closing) element
-#' @keywords internal
-.make_void_tag <- function(tag_name) {
-  force(tag_name)
+    n <- length(dots)
+    dots[[1L]] <- base::list
 
-  function(...) {
-    tag(
-      tag_name,
-      ...,
-      tag_type = "void"
+    has_trailing_comma <- identical(dots[[n]], quote(expr = ))
+    if (has_trailing_comma) {
+      dots <- dots[-n]
+    }
+
+    dots <- eval(
+      expr = dots,
+      envir = dots_envir
     )
+
+    dots$tag_name <- tag_name
+    dots$tag_type <- tag_type
+
+    do.call(what = tag, args = dots)
   }
 }
 
@@ -481,9 +504,9 @@ tags <- list(
   head = .make_tag("head"),
   body = .make_tag("body"),
   title = .make_tag("title"),
-  base = .make_void_tag("base"),
-  link = .make_void_tag("link"),
-  meta = .make_void_tag("meta"),
+  base = .make_tag("base", tag_type = "void"),
+  link = .make_tag("link", tag_type = "void"),
+  meta = .make_tag("meta", tag_type = "void"),
   style = .make_tag("style"),
   script = .make_tag("script"),
   noscript = .make_tag("noscript"),
@@ -515,7 +538,7 @@ tags <- list(
   pre = .make_tag("pre"),
   figure = .make_tag("figure"),
   figcaption = .make_tag("figcaption"),
-  hr = .make_void_tag("hr"),
+  hr = .make_tag("hr", tag_type = "void"),
 
   # -- inline text semantics ---------------------------------------
   a = .make_tag("a"),
@@ -523,7 +546,7 @@ tags <- list(
   b = .make_tag("b"),
   bdi = .make_tag("bdi"),
   bdo = .make_tag("bdo"),
-  br = .make_void_tag("br"),
+  br = .make_tag("br", tag_type = "void"),
   cite = .make_tag("cite"),
   code = .make_tag("code"),
   data = .make_tag("data"),
@@ -546,7 +569,7 @@ tags <- list(
   time = .make_tag("time"),
   u = .make_tag("u"),
   var = .make_tag("var"),
-  wbr = .make_void_tag("wbr"),
+  wbr = .make_tag("wbr", tag_type = "void"),
   del = .make_tag("del"),
   ins = .make_tag("ins"),
 
@@ -563,7 +586,7 @@ tags <- list(
   table = .make_tag("table"),
   caption = .make_tag("caption"),
   colgroup = .make_tag("colgroup"),
-  col = .make_void_tag("col"),
+  col = .make_tag("col", tag_type = "void"),
   thead = .make_tag("thead"),
   tbody = .make_tag("tbody"),
   tfoot = .make_tag("tfoot"),
@@ -576,7 +599,7 @@ tags <- list(
   fieldset = .make_tag("fieldset"),
   legend = .make_tag("legend"),
   label = .make_tag("label"),
-  input = .make_void_tag("input"),
+  input = .make_tag("input", tag_type = "void"),
   button = .make_tag("button"),
   select = .make_tag("select"),
   option = .make_tag("option"),
@@ -588,18 +611,18 @@ tags <- list(
   meter = .make_tag("meter"),
 
   # -- media & embedded content ------------------------------------
-  img = .make_void_tag("img"),
+  img = .make_tag("img", tag_type = "void"),
   picture = .make_tag("picture"),
-  source = .make_void_tag("source"),
+  source = .make_tag("source", tag_type = "void"),
   audio = .make_tag("audio"),
   video = .make_tag("video"),
-  track = .make_void_tag("track"),
+  track = .make_tag("track", tag_type = "void"),
   map = .make_tag("map"),
-  area = .make_void_tag("area"),
+  area = .make_tag("area", tag_type = "void"),
   iframe = .make_tag("iframe"),
-  embed = .make_void_tag("embed"),
+  embed = .make_tag("embed", tag_type = "void"),
   object = .make_tag("object"),
-  param = .make_void_tag("param"),
+  param = .make_tag("param", tag_type = "void"),
   canvas = .make_tag("canvas"),
   svg = .make_tag("svg"),
   math = .make_tag("math"),
