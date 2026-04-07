@@ -153,24 +153,36 @@ test_that("trailing comma after variable indexing", {
 
 test_that("trailing comma after multiple variable references", {
   x <- c("hello", "world")
-  node <- tags$p(
-    x[1],
-    " ",
-    x[2],
+  node <- tag_list(
+    tags$div(
+      tags$p(
+        x[1],
+        " ",
+      ),
+      tags$p(
+        x[2],
+      ),
+    ),
   )
-  expect_equal(node$children, list("hello", " ", "world"))
-  expect_equal(render(node), "<p>hello world</p>")
+  expect_equal(render(node), "<div><p>hello </p><p>world</p></div>")
 })
 
 test_that("trailing comma after lapply referencing outer variable", {
   items <- c("a", "b", "c")
   node <- tags$ul(
-    lapply(items, tags$li),
+    lapply(
+      X = items,
+      FUN = function(x) {
+        tags$li(
+          paste("item:", x),
+        )
+      }
+    ),
   )
   expect_length(node$children, 3L)
   expect_equal(
     render(node),
-    "<ul><li>a</li><li>b</li><li>c</li></ul>"
+    "<ul><li>item: a</li><li>item: b</li><li>item: c</li></ul>"
   )
 })
 
