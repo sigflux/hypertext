@@ -1,3 +1,34 @@
+#' A Variation of `base::list()`
+#'
+#' @param ... Objects to pass to the list /// Optional.
+#'
+#' @param .envir An environment /// Optional.
+#'               Specifies the environment in which to evaluate
+#'               `...` in.
+#'
+#' @return List with `...` as elements.
+#'
+#' @keywords internal
+#'
+#' @noRd
+.list2 <- function(..., .envir = parent.frame()) {
+  dots <- substitute(
+    expr = list(...)
+  )
+
+  n <- length(dots)
+
+  has_trailing_comma <- identical(dots[[n]], quote(expr = ))
+  if (has_trailing_comma) {
+    dots <- dots[-n]
+  }
+
+  eval(
+    expr = dots,
+    envir = .envir
+  )
+}
+
 # -- void (self-closing) elements ------------------------------------
 .void_elements <- c(
   "area",
@@ -22,9 +53,13 @@
 #'
 #' Replaces `&`, `<`, `>`, `"`, and `'` with their HTML entity equivalents.
 #'
-#' @param x A character string.
-#' @return A character string with HTML special characters escaped.
+#' @param x String /// Required.
+#'
+#' @return String with HTML special characters escaped.
+#'
 #' @keywords internal
+#'
+#' @noRd
 .escape_html <- function(x) {
   x <- gsub("&", "&amp;", x, fixed = TRUE)
   x <- gsub("<", "&lt;", x, fixed = TRUE)
@@ -44,9 +79,14 @@
 #' - Character vectors of length > 1 are collapsed with a space
 #'   (handy for `class = c("a", "b")`).
 #'
-#' @param attrs A named list of attribute values.
-#' @return A single character string (leading space included when non-empty).
+#' @param attrs Named list /// Required.
+#'              Attribute values.
+#'
+#' @return String (leading space included when non-empty).
+#'
 #' @keywords internal
+#'
+#' @noRd
 .render_attrs <- function(attrs) {
   if (length(attrs) == 0L) {
     return("")
@@ -173,21 +213,8 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
 #' render(tl)
 #' @export
 tag_list <- function(...) {
-  dots <- match.call()
   dots_envir <- parent.frame()
-
-  n <- length(dots)
-  dots[[1L]] <- base::list
-
-  has_trailing_comma <- identical(dots[[n]], quote(expr = ))
-  if (has_trailing_comma) {
-    dots <- dots[-n]
-  }
-
-  dots <- eval(
-    expr = dots,
-    envir = dots_envir
-  )
+  dots <- .list2(..., .envir = dots_envir)
 
   children <- Filter(
     f = Negate(is.null),
@@ -251,9 +278,13 @@ doctype <- function() {
 #' `hypertext.tag.list` nodes) so users can pass
 #' `list(tags$li("a"), tags$li("b"))` as a single child argument.
 #'
-#' @param x A list of children.
+#' @param x List of children /// Required.
+#'
 #' @return A flat list of children.
+#'
 #' @keywords internal
+#'
+#' @noRd
 .flatten_children <- function(x) {
   out <- list()
   for (el in x) {
@@ -443,7 +474,18 @@ print.hypertext.raw <- print.hypertext.tag
 
 #' Create a tag function
 #'
+#' @param tag_name String /// Required.
+#'                 Name of the tag.
+#'
+#' @param tag_type String /// Optional.
+#'                 Either "normal" (default) for a normal HTML tag
+#'                 or "void" for a self-closing HTML tag.
+#'
+#' @return Function.
+#'
 #' @keywords internal
+#'
+#' @noRd
 .make_tag <- function(
   tag_name,
   tag_type = c("normal", "void")
@@ -452,21 +494,8 @@ print.hypertext.raw <- print.hypertext.tag
   tag_type <- match.arg(arg = tag_type)
 
   function(...) {
-    dots <- match.call()
     dots_envir <- parent.frame()
-
-    n <- length(dots)
-    dots[[1L]] <- base::list
-
-    has_trailing_comma <- identical(dots[[n]], quote(expr = ))
-    if (has_trailing_comma) {
-      dots <- dots[-n]
-    }
-
-    dots <- eval(
-      expr = dots,
-      envir = dots_envir
-    )
+    dots <- .list2(..., .envir = dots_envir)
 
     dots$tag_name <- tag_name
     dots$tag_type <- tag_type
