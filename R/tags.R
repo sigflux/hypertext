@@ -11,7 +11,10 @@
 #' @keywords internal
 #'
 #' @noRd
-.list2 <- function(..., .envir = parent.frame()) {
+.list2 <- function(
+  ...,
+  .envir = parent.frame()
+) {
   dots <- substitute(
     expr = list(...)
   )
@@ -168,7 +171,11 @@
 #' # custom void element
 #' tag(tag_name = "my-icon", name = "home", tag_type = "void")
 #' @export
-tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
+tag <- function(
+  tag_name,
+  ...,
+  tag_type = c("normal", "void")
+) {
   tag_type <- match.arg(arg = tag_type)
   dots <- list(...)
 
@@ -373,7 +380,10 @@ doctype <- function() {
 #' }
 #'
 #' @export
-render <- function(x, ...) {
+render <- function(
+  x,
+  ...
+) {
   UseMethod("render")
 }
 
@@ -459,7 +469,10 @@ render.list <- function(
 # -- print method ----------------------------------------------------
 
 #' @export
-print.hypertext.tag <- function(x, ...) {
+print.hypertext.tag <- function(
+  x,
+  ...
+) {
   cat(render(x), "\n")
   invisible(x)
 }
