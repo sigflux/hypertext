@@ -2,11 +2,11 @@
 % Please edit documentation in R/tags.R
 \name{.make_tag}
 \alias{.make_tag}
-\title{Create a tag function for a normal (non-void) element}
+\title{Create a tag function}
 \usage{
-.make_tag(tag_name)
+.make_tag(tag_name, tag_type = c("normal", "void"))
 }
 \description{
-Create a tag function for a normal (non-void) element
+Create a tag function
 }
 \keyword{internal}
