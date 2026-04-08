@@ -503,3 +503,36 @@ test_that("trailing comma in tag_list with conditional children", {
     "<h1>Title</h1><main>main content</main>"
   )
 })
+
+test_that("trailing comma works with forwarded ellipsis in functions", {
+  page <- function(...) {
+    content <- tag_list(
+      doctype(),
+      tags$html(),
+      tags$head(
+        tags$meta(
+          charset = "utf-8"
+        )
+      ),
+      tags$body(
+        tags$main(
+          class = "main",
+          ...,
+        ),
+      ),
+    )
+
+    render(content)
+  }
+
+  home_ui <- function() {
+    content <- tags$div(
+      tags$h3("hello, world"),
+      tags$p("this is a test"),
+    )
+
+    page(content)
+  }
+
+  out <- home_ui()
+})
