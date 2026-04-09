@@ -1,10 +1,8 @@
 #' A Variation of `base::list()`
 #'
-#' @param ... Objects to pass to the list /// Optional.
-#'
-#' @param .envir An environment /// Optional.
-#'               Specifies the environment in which to evaluate
-#'               `...` in.
+#' @param ... Objects /// Optional.
+#'            These are the elements to be contained by the list.
+#'            Can be named, unnamed, or a mix of the two.
 #'
 #' @return List with `...` as elements.
 #'
