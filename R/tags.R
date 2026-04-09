@@ -1,3 +1,58 @@
+#' A Variation of `base::list()`
+#'
+#' @param ... Objects /// Optional.
+#'            These are the elements to be contained by the list.
+#'            Can be named, unnamed, or a mix of the two.
+#'
+#' @return List with `...` as elements.
+#'
+#' @keywords internal
+#'
+#' @noRd
+.list2 <- function(...) {
+  ellipsis_length <- ...length()
+  ellipsis_names <- ...names()
+
+  if (identical(ellipsis_length, 0L)) {
+    return(list())
+  }
+
+  ellipsis_parse_tree <- substitute(
+    expr = list(...)
+  )
+
+  has_trailing_comma <- identical(
+    ellipsis_parse_tree[[length(ellipsis_parse_tree)]],
+    quote(expr = )
+  )
+
+  if (has_trailing_comma) {
+    ellipsis_length <- ellipsis_length - 1L
+    ellipsis_names <- ellipsis_names[seq_len(ellipsis_length)]
+  }
+
+  if (identical(ellipsis_length, 0L)) {
+    return(list())
+  }
+
+  out <- vector(mode = "list", length = ellipsis_length)
+
+  for (idx in seq_len(ellipsis_length)) {
+    value <- ...elt(idx)
+
+    if (is.null(value)) {
+      out[idx] <- list(NULL)
+      next
+    }
+
+    out[[idx]] <- value
+  }
+
+  names(out) <- ellipsis_names
+
+  out
+}
+
 # -- void (self-closing) elements ------------------------------------
 .void_elements <- c(
   "area",
@@ -22,9 +77,13 @@
 #'
 #' Replaces `&`, `<`, `>`, `"`, and `'` with their HTML entity equivalents.
 #'
-#' @param x A character string.
-#' @return A character string with HTML special characters escaped.
+#' @param x String /// Required.
+#'
+#' @return String with HTML special characters escaped.
+#'
 #' @keywords internal
+#'
+#' @noRd
 .escape_html <- function(x) {
   x <- gsub("&", "&amp;", x, fixed = TRUE)
   x <- gsub("<", "&lt;", x, fixed = TRUE)
@@ -44,9 +103,14 @@
 #' - Character vectors of length > 1 are collapsed with a space
 #'   (handy for `class = c("a", "b")`).
 #'
-#' @param attrs A named list of attribute values.
-#' @return A single character string (leading space included when non-empty).
+#' @param attrs Named list /// Required.
+#'              Attribute values.
+#'
+#' @return String (leading space included when non-empty).
+#'
 #' @keywords internal
+#'
+#' @noRd
 .render_attrs <- function(attrs) {
   if (length(attrs) == 0L) {
     return("")
@@ -128,7 +192,11 @@
 #' # custom void element
 #' tag(tag_name = "my-icon", name = "home", tag_type = "void")
 #' @export
-tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
+tag <- function(
+  tag_name,
+  ...,
+  tag_type = c("normal", "void")
+) {
   tag_type <- match.arg(arg = tag_type)
   dots <- list(...)
 
@@ -173,9 +241,11 @@ tag <- function(tag_name, ..., tag_type = c("normal", "void")) {
 #' render(tl)
 #' @export
 tag_list <- function(...) {
+  dots <- .list2(...)
+
   children <- Filter(
     f = Negate(is.null),
-    x = list(...)
+    x = dots
   )
 
   structure(
@@ -235,9 +305,13 @@ doctype <- function() {
 #' `hypertext.tag.list` nodes) so users can pass
 #' `list(tags$li("a"), tags$li("b"))` as a single child argument.
 #'
-#' @param x A list of children.
+#' @param x List of children /// Required.
+#'
 #' @return A flat list of children.
+#'
 #' @keywords internal
+#'
+#' @noRd
 .flatten_children <- function(x) {
   out <- list()
   for (el in x) {
@@ -326,7 +400,10 @@ doctype <- function() {
 #' }
 #'
 #' @export
-render <- function(x, ...) {
+render <- function(
+  x,
+  ...
+) {
   UseMethod("render")
 }
 
@@ -412,7 +489,10 @@ render.list <- function(
 # -- print method ----------------------------------------------------
 
 #' @export
-print.hypertext.tag <- function(x, ...) {
+print.hypertext.tag <- function(
+  x,
+  ...
+) {
   cat(render(x), "\n")
   invisible(x)
 }
@@ -425,30 +505,34 @@ print.hypertext.raw <- print.hypertext.tag
 
 # -- tag factory helpers ---------------------------------------------
 
-#' Create a tag function for a normal (non-void) element
+#' Create a tag function
+#'
+#' @param tag_name String /// Required.
+#'                 Name of the tag.
+#'
+#' @param tag_type String /// Optional.
+#'                 Either "normal" (default) for a normal HTML tag
+#'                 or "void" for a self-closing HTML tag.
+#'
+#' @return Function.
+#'
 #' @keywords internal
-.make_tag <- function(tag_name) {
+#'
+#' @noRd
+.make_tag <- function(
+  tag_name,
+  tag_type = c("normal", "void")
+) {
   force(tag_name)
+  tag_type <- match.arg(arg = tag_type)
 
   function(...) {
-    tag(
-      tag_name,
-      ...
-    )
-  }
-}
+    dots <- .list2(...)
 
-#' Create a tag function for a void (self-closing) element
-#' @keywords internal
-.make_void_tag <- function(tag_name) {
-  force(tag_name)
+    dots$tag_name <- tag_name
+    dots$tag_type <- tag_type
 
-  function(...) {
-    tag(
-      tag_name,
-      ...,
-      tag_type = "void"
-    )
+    do.call(what = tag, args = dots)
   }
 }
 
@@ -481,9 +565,9 @@ tags <- list(
   head = .make_tag("head"),
   body = .make_tag("body"),
   title = .make_tag("title"),
-  base = .make_void_tag("base"),
-  link = .make_void_tag("link"),
-  meta = .make_void_tag("meta"),
+  base = .make_tag("base", tag_type = "void"),
+  link = .make_tag("link", tag_type = "void"),
+  meta = .make_tag("meta", tag_type = "void"),
   style = .make_tag("style"),
   script = .make_tag("script"),
   noscript = .make_tag("noscript"),
@@ -515,7 +599,7 @@ tags <- list(
   pre = .make_tag("pre"),
   figure = .make_tag("figure"),
   figcaption = .make_tag("figcaption"),
-  hr = .make_void_tag("hr"),
+  hr = .make_tag("hr", tag_type = "void"),
 
   # -- inline text semantics ---------------------------------------
   a = .make_tag("a"),
@@ -523,7 +607,7 @@ tags <- list(
   b = .make_tag("b"),
   bdi = .make_tag("bdi"),
   bdo = .make_tag("bdo"),
-  br = .make_void_tag("br"),
+  br = .make_tag("br", tag_type = "void"),
   cite = .make_tag("cite"),
   code = .make_tag("code"),
   data = .make_tag("data"),
@@ -546,7 +630,7 @@ tags <- list(
   time = .make_tag("time"),
   u = .make_tag("u"),
   var = .make_tag("var"),
-  wbr = .make_void_tag("wbr"),
+  wbr = .make_tag("wbr", tag_type = "void"),
   del = .make_tag("del"),
   ins = .make_tag("ins"),
 
@@ -563,7 +647,7 @@ tags <- list(
   table = .make_tag("table"),
   caption = .make_tag("caption"),
   colgroup = .make_tag("colgroup"),
-  col = .make_void_tag("col"),
+  col = .make_tag("col", tag_type = "void"),
   thead = .make_tag("thead"),
   tbody = .make_tag("tbody"),
   tfoot = .make_tag("tfoot"),
@@ -576,7 +660,7 @@ tags <- list(
   fieldset = .make_tag("fieldset"),
   legend = .make_tag("legend"),
   label = .make_tag("label"),
-  input = .make_void_tag("input"),
+  input = .make_tag("input", tag_type = "void"),
   button = .make_tag("button"),
   select = .make_tag("select"),
   option = .make_tag("option"),
@@ -588,18 +672,18 @@ tags <- list(
   meter = .make_tag("meter"),
 
   # -- media & embedded content ------------------------------------
-  img = .make_void_tag("img"),
+  img = .make_tag("img", tag_type = "void"),
   picture = .make_tag("picture"),
-  source = .make_void_tag("source"),
+  source = .make_tag("source", tag_type = "void"),
   audio = .make_tag("audio"),
   video = .make_tag("video"),
-  track = .make_void_tag("track"),
+  track = .make_tag("track", tag_type = "void"),
   map = .make_tag("map"),
-  area = .make_void_tag("area"),
+  area = .make_tag("area", tag_type = "void"),
   iframe = .make_tag("iframe"),
-  embed = .make_void_tag("embed"),
+  embed = .make_tag("embed", tag_type = "void"),
   object = .make_tag("object"),
-  param = .make_void_tag("param"),
+  param = .make_tag("param", tag_type = "void"),
   canvas = .make_tag("canvas"),
   svg = .make_tag("svg"),
   math = .make_tag("math"),
