@@ -11,25 +11,48 @@
 #' @keywords internal
 #'
 #' @noRd
-.list2 <- function(
-  ...,
-  .envir = parent.frame()
-) {
-  dots <- substitute(
+.list2 <- function(...) {
+  ellipsis_length <- ...length()
+  ellipsis_names <- ...names()
+
+  if (identical(ellipsis_length, 0L)) {
+    return(list())
+  }
+
+  ellipsis_parse_tree <- substitute(
     expr = list(...)
   )
 
-  n <- length(dots)
+  has_trailing_comma <- identical(
+    ellipsis_parse_tree[[length(ellipsis_parse_tree)]],
+    quote(expr = )
+  )
 
-  has_trailing_comma <- identical(dots[[n]], quote(expr = ))
   if (has_trailing_comma) {
-    dots <- dots[-n]
+    ellipsis_length <- ellipsis_length - 1L
+    ellipsis_names <- ellipsis_names[seq_len(ellipsis_length)]
   }
 
-  eval(
-    expr = dots,
-    envir = .envir
-  )
+  if (identical(ellipsis_length, 0L)) {
+    return(list())
+  }
+
+  out <- vector(mode = "list", length = ellipsis_length)
+
+  for (idx in seq_len(ellipsis_length)) {
+    value <- ...elt(idx)
+
+    if (is.null(value)) {
+      out[idx] <- list(NULL)
+      next
+    }
+
+    out[[idx]] <- value
+  }
+
+  names(out) <- ellipsis_names
+
+  out
 }
 
 # -- void (self-closing) elements ------------------------------------
@@ -220,8 +243,7 @@ tag <- function(
 #' render(tl)
 #' @export
 tag_list <- function(...) {
-  dots_envir <- parent.frame()
-  dots <- .list2(..., .envir = dots_envir)
+  dots <- .list2(...)
 
   children <- Filter(
     f = Negate(is.null),
@@ -507,8 +529,7 @@ print.hypertext.raw <- print.hypertext.tag
   tag_type <- match.arg(arg = tag_type)
 
   function(...) {
-    dots_envir <- parent.frame()
-    dots <- .list2(..., .envir = dots_envir)
+    dots <- .list2(...)
 
     dots$tag_name <- tag_name
     dots$tag_type <- tag_type
