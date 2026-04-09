@@ -534,5 +534,8 @@ test_that("trailing comma works with forwarded ellipsis in functions", {
     page(content)
   }
 
-  out <- home_ui()
+  expect_equal(
+    home_ui(),
+    "<!DOCTYPE html><html></html><head><meta charset=\"utf-8\" /></head><body><main class=\"main\"><div><h3>hello, world</h3><p>this is a test</p></div></main></body>"
+  )
 })
