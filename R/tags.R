@@ -11,24 +11,23 @@
 #' @noRd
 .list2 <- function(...) {
   ellipsis_length <- ...length()
-  ellipsis_names <- ...names()
 
   if (identical(ellipsis_length, 0L)) {
     return(list())
   }
 
-  ellipsis_parse_tree <- substitute(
-    expr = list(...)
-  )
+  ellipsis_names <- ...names()
 
-  has_trailing_comma <- identical(
-    ellipsis_parse_tree[[length(ellipsis_parse_tree)]],
-    quote(expr = )
+  has_trailing_comma <- do.call(
+    what = missing,
+    args = list(
+      paste0("..", ellipsis_length)
+    )
   )
 
   if (has_trailing_comma) {
+    ellipsis_names <- ellipsis_names[-ellipsis_length]
     ellipsis_length <- ellipsis_length - 1L
-    ellipsis_names <- ellipsis_names[seq_len(ellipsis_length)]
   }
 
   if (identical(ellipsis_length, 0L)) {
