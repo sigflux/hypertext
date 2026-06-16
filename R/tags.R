@@ -687,6 +687,74 @@ tags <- list(
   svg = .make_tag("svg"),
   math = .make_tag("math"),
 
+  # -- svg: basic shapes -------------------------------------------
+  circle = .make_tag("circle"),
+  ellipse = .make_tag("ellipse"),
+  line = .make_tag("line"),
+  path = .make_tag("path"),
+  polygon = .make_tag("polygon"),
+  polyline = .make_tag("polyline"),
+  rect = .make_tag("rect"),
+
+  # -- svg: structural ---------------------------------------------
+  g = .make_tag("g"),
+  defs = .make_tag("defs"),
+  symbol = .make_tag("symbol"),
+  use = .make_tag("use"),
+  switch = .make_tag("switch"),
+
+  # -- svg: text ---------------------------------------------------
+  tspan = .make_tag("tspan"),
+  textPath = .make_tag("textPath"),
+
+  # -- svg: gradients ----------------------------------------------
+  linearGradient = .make_tag("linearGradient"),
+  radialGradient = .make_tag("radialGradient"),
+  stop = .make_tag("stop"),
+
+  # -- svg: filters ------------------------------------------------
+  filter = .make_tag("filter"),
+  feBlend = .make_tag("feBlend"),
+  feColorMatrix = .make_tag("feColorMatrix"),
+  feComponentTransfer = .make_tag("feComponentTransfer"),
+  feComposite = .make_tag("feComposite"),
+  feConvolveMatrix = .make_tag("feConvolveMatrix"),
+  feDiffuseLighting = .make_tag("feDiffuseLighting"),
+  feDisplacementMap = .make_tag("feDisplacementMap"),
+  feDistantLight = .make_tag("feDistantLight"),
+  feDropShadow = .make_tag("feDropShadow"),
+  feFlood = .make_tag("feFlood"),
+  feFuncA = .make_tag("feFuncA"),
+  feFuncB = .make_tag("feFuncB"),
+  feFuncG = .make_tag("feFuncG"),
+  feFuncR = .make_tag("feFuncR"),
+  feGaussianBlur = .make_tag("feGaussianBlur"),
+  feImage = .make_tag("feImage"),
+  feMerge = .make_tag("feMerge"),
+  feMergeNode = .make_tag("feMergeNode"),
+  feMorphology = .make_tag("feMorphology"),
+  feOffset = .make_tag("feOffset"),
+  fePointLight = .make_tag("fePointLight"),
+  feSpecularLighting = .make_tag("feSpecularLighting"),
+  feSpotLight = .make_tag("feSpotLight"),
+  feTile = .make_tag("feTile"),
+  feTurbulence = .make_tag("feTurbulence"),
+
+  # -- svg: animation ----------------------------------------------
+  animate = .make_tag("animate"),
+  animateMotion = .make_tag("animateMotion"),
+  animateTransform = .make_tag("animateTransform"),
+  mpath = .make_tag("mpath"),
+  set = .make_tag("set"),
+
+  # -- svg: other --------------------------------------------------
+  clipPath = .make_tag("clipPath"),
+  foreignObject = .make_tag("foreignObject"),
+  marker = .make_tag("marker"),
+  mask = .make_tag("mask"),
+  pattern = .make_tag("pattern"),
+  view = .make_tag("view"),
+
   # -- interactive / scripting -------------------------------------
   details = .make_tag("details"),
   summary = .make_tag("summary"),
