@@ -704,6 +704,7 @@ tags <- list(
   switch = .make_tag("switch"),
 
   # -- svg: text ---------------------------------------------------
+  text = .make_tag("text"),
   tspan = .make_tag("tspan"),
   textPath = .make_tag("textPath"),
 
@@ -749,9 +750,12 @@ tags <- list(
 
   # -- svg: other --------------------------------------------------
   clipPath = .make_tag("clipPath"),
+  desc = .make_tag("desc"),
   foreignObject = .make_tag("foreignObject"),
+  image = .make_tag("image"),
   marker = .make_tag("marker"),
   mask = .make_tag("mask"),
+  metadata = .make_tag("metadata"),
   pattern = .make_tag("pattern"),
   view = .make_tag("view"),
 
