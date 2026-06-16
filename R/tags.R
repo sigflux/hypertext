@@ -537,10 +537,10 @@ print.hypertext.raw <- print.hypertext.tag
 
 # -- the `tags` list -------------------------------------------------
 
-#' HTML tag functions
+#' HTML and SVG tag functions
 #'
-#' A named list of functions, one per HTML5 element. Access individual
-#' tags with `tags$div(...)`, `tags$p(...)`, etc.
+#' A named list of functions, one per HTML and SVG element. Access individual
+#' tags with `tags$div(...)`, `tags$p(...)`, `tags$svg(...)`, etc.
 #'
 #' Named arguments become HTML attributes; unnamed arguments become
 #' child nodes or text content.
