@@ -1,0 +1,318 @@
+---
+title: "SVG with hypertext"
+description: >
+  Build SVG graphics programmatically in R — shapes, gradients,
+  a bar chart from real data, and animation.
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>"
+)
+```
+
+```{r library}
+library(hypertext)
+```
+
+SVG is XML, and XML is just nested elements with attributes. That maps
+directly onto hypertext's model: `tags$svg()`, `tags$circle()`,
+`tags$path()`, and so on are all available in the `tags` list.
+
+The result is inline SVG — part of the HTML document, not a separate
+file, no base64 encoding, no `<img>` tag. Styles cascade into it, it
+scales cleanly, and it can be animated.
+
+## Basic shapes
+
+Every shape is a tag. Named arguments become SVG attributes.
+
+```{r shapes, results = "asis"}
+# circle
+circle <- tags$svg(
+  viewBox = "0 0 100 100",
+  width = "100",
+  height = "100",
+  tags$circle(
+    cx = "50",
+    cy = "50",
+    r = "40",
+    fill = "#a78bfa",
+    stroke = "#7c3aed",
+    `stroke-width` = "2"
+  )
+)
+
+# rect with rounded corners
+rect <- tags$svg(
+  viewBox = "0 0 100 60",
+  width = "100",
+  height = "60",
+  tags$rect(
+    x = "5",
+    y = "5",
+    width = "90",
+    height = "50",
+    rx = "6",
+    fill = "#a78bfa",
+    opacity = "0.8"
+  )
+)
+
+# line
+line <- tags$svg(
+  viewBox = "0 0 100 100",
+  width = "100",
+  height = "100",
+  tags$line(
+    x1 = "10",
+    y1 = "90",
+    x2 = "90",
+    y2 = "10",
+    stroke = "#a78bfa",
+    `stroke-width` = "3",
+    `stroke-linecap` = "round"
+  )
+)
+
+# quadratic bezier path
+path <- tags$svg(
+  viewBox = "0 0 100 100",
+  width = "100",
+  height = "100",
+  tags$path(
+    d = "M10 80 Q 50 10 90 80",
+    stroke = "#a78bfa",
+    `stroke-width` = "3",
+    fill = "none",
+    `stroke-linecap` = "round"
+  )
+)
+
+cat(
+  render(circle),
+  render(rect),
+  render(line),
+  render(path)
+)
+```
+
+## A reusable icon
+
+Wrapping an SVG in a function makes it a component just like any other
+hypertext component. Here is a checkmark icon:
+
+```{r icon}
+icon_check <- function(size = 24, color = "currentColor") {
+  tags$svg(
+    xmlns = "http://www.w3.org/2000/svg",
+    viewBox = "0 0 24 24",
+    width = size,
+    height = size,
+    fill = "none",
+    stroke = color,
+    `stroke-width` = "2",
+    `stroke-linecap` = "round",
+    tags$polyline(points = "20 6 9 17 4 12")
+  )
+}
+
+a <- icon_check()
+b <- icon_check(size = 48, color = "#a78bfa")
+```
+
+```{r icon-display, results = "asis"}
+cat(
+  render(a),
+  render(b)
+)
+```
+
+## Gradients
+
+Gradients are defined inside `<defs>` and referenced by `id`. The
+`linearGradient` element takes `stop` children that define the colour
+stops.
+
+```{r gradient, results = "asis"}
+gradient_rect <- tags$svg(
+  viewBox = "0 0 200 80",
+  width = "200",
+  height = "80",
+  tags$defs(
+    tags$linearGradient(
+      id = "grad1",
+      x1 = "0%",
+      y1 = "0%",
+      x2 = "100%",
+      y2 = "0%",
+      tags$stop(offset = "0%", style = "stop-color:#7c3aed; stop-opacity:1"),
+      tags$stop(offset = "100%", style = "stop-color:#a78bfa; stop-opacity:1")
+    )
+  ),
+  tags$rect(
+    x = "0",
+    y = "0",
+    width = "200",
+    height = "80",
+    rx = "6",
+    fill = "url(#grad1)"
+  )
+)
+
+cat(render(gradient_rect))
+```
+
+## Bar chart — simple
+
+The key insight: SVG coordinates are just numbers. We compute them in R
+and pass them as attribute strings.
+
+The SVG coordinate system starts at the top-left. For a bar chart,
+bars grow downward from a baseline — so a bar of height `h` in a canvas
+of height `H` starts at `y = H - h`.
+
+```{r bar-simple, results = "asis"}
+bar_chart <- function(
+  values,
+  width = 300,
+  height = 160,
+  bar_color = "#a78bfa",
+  label_color = "#888"
+) {
+  n <- length(values)
+  pad <- 24 # padding inside canvas
+  gap <- 8 # gap between bars
+  usable_w <- width - 2 * pad
+  bar_w <- (usable_w - gap * (n - 1)) / n
+  max_val <- max(values)
+  usable_h <- height - pad * 2
+
+  bars <- lapply(seq_along(values), function(i) {
+    bar_h <- (values[[i]] / max_val) * usable_h
+    bar_x <- pad + (i - 1) * (bar_w + gap)
+    bar_y <- pad + (usable_h - bar_h)
+    label <- names(values)[[i]]
+
+    tag_list(
+      tags$rect(
+        x = round(bar_x, 1),
+        y = round(bar_y, 1),
+        width = round(bar_w, 1),
+        height = round(bar_h, 1),
+        rx = "3",
+        fill = bar_color,
+        opacity = "0.85"
+      ),
+      tags$text(
+        x = round(bar_x + bar_w / 2, 1),
+        y = height - 6,
+        `text-anchor` = "middle",
+        `font-size` = "10",
+        `font-family` = "inherit",
+        fill = label_color,
+        label
+      )
+    )
+  })
+
+  tags$svg(
+    viewBox = paste("0 0", width, height),
+    width = width,
+    height = height,
+    bars
+  )
+}
+
+scores <- c(A = 40, B = 65, C = 30, D = 55, E = 80)
+chart_a <- bar_chart(scores)
+
+cat(render(chart_a))
+```
+
+## Bar chart — real data
+
+`VADeaths` is a matrix in base R with mortality rates per 1000 for five
+age groups across four demographic groups. We take the `"Rural Male"`
+column as our dataset.
+
+```{r bar-real, results = "asis"}
+rural_male <- VADeaths[, "Rural Male"]
+# rural_male is a named numeric vector:
+# 50-54  55-59  60-64  65-69  70-74
+#  11.7   18.1   26.9   41.0   66.0
+
+chart_b <- bar_chart(
+  values = rural_male,
+  width = 360,
+  height = 180,
+  bar_color = "#7c3aed"
+)
+
+cat(render(chart_b))
+```
+
+The same `bar_chart()` function works on both datasets. The chart is
+a plain R object — a `hypertext.tag` — that you can embed anywhere
+`render()` accepts: a full HTML page, an HTTP response, a `raw_html()`
+call inside a larger document.
+
+## Animation
+
+Animation elements are children of the element they animate. Add
+`tags$animate()` as a child of `tags$circle()` to pulse a dot:
+
+```{r animation, results = "asis"}
+pulse <- tags$svg(
+  viewBox = "0 0 100 100",
+  width = "100",
+  height = "100",
+  tags$circle(
+    cx = "50",
+    cy = "50",
+    r = "10",
+    fill = "#a78bfa",
+    tags$animate(
+      attributeName = "r",
+      from = "10",
+      to = "28",
+      dur = "1.2s",
+      repeatCount = "indefinite",
+      calcMode = "ease-out"
+    ),
+    tags$animate(
+      attributeName = "opacity",
+      from = "1",
+      to = "0",
+      dur = "1.2s",
+      repeatCount = "indefinite",
+      calcMode = "ease-out"
+    )
+  ),
+  # static inner dot so the centre stays visible
+  tags$circle(
+    cx = "50",
+    cy = "50",
+    r = "6",
+    fill = "#7c3aed"
+  )
+)
+
+cat(render(pulse))
+```
+
+## Summary
+
+| Element type | Tags |
+|---|---|
+| Basic shapes | `circle`, `ellipse`, `rect`, `line`, `path`, `polygon`, `polyline` |
+| Text | `text`, `tspan`, `textPath` |
+| Containers | `g`, `defs`, `symbol`, `use` |
+| Gradients | `linearGradient`, `radialGradient`, `stop` |
+| Filters | `filter`, `feGaussianBlur`, `feBlend`, and 20+ others |
+| Animation | `animate`, `animateMotion`, `animateTransform`, `set` |
+
+All 63 SVG elements from the
+[MDN reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element)
+that are currently part of the living standard are available in `tags`.
