@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Building a component library • hypertext</title>
+<title>building components • hypertext</title>
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Geist-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Geist_Mono-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Building a component library">
-<meta name="description" content="How to wrap hypertext tags into reusable R functions — props, conditional children, composition, and lists.">
-<meta property="og:description" content="How to wrap hypertext tags into reusable R functions — props, conditional children, composition, and lists.">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="building components">
+<meta name="description" content="how to wrap hypertext tags into reusable R functions, conditional children and composition.">
+<meta property="og:description" content="how to wrap hypertext tags into reusable R functions, conditional children and composition.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -62,7 +62,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Building a component library</h1>
+      <h1>building components</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/sigflux/hypertext/blob/HEAD/vignettes/articles/components.Rmd" class="external-link"><code>vignettes/articles/components.Rmd</code></a></small>
@@ -72,18 +72,41 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sigflux.github.io/hypertext/">hypertext</a></span><span class="op">)</span></span></code></pre></div>
-<p>The core idea in hypertext is simple: tag functions are just R
-functions, and R functions compose naturally. You don’t need a framework
-or a special component system — a component is just a function that
-returns a <code>hypertext.tag</code>.</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/sigflux/hypertext" class="external-link">hypertext</a></span><span class="op">)</span></span></code></pre></div>
+<p>the core idea in hypertext is simple: tag functions are just R
+functions, and R functions compose naturally. no need for a framework or
+a special component system — a component is just a function that returns
+a <code>hypertext.tag</code>.</p>
+<p>with <code>hypertext</code>, you can use any css framework of your
+choice. but for the examples that follow we’ll use bootstrap classes for
+demo purposes and because this site is built using <code>pkgdown</code>
+which uses bootstrap by default.</p>
 <div class="section level2">
-<h2 id="a-basic-component">A basic component<a class="anchor" aria-label="anchor" href="#a-basic-component"></a>
+<h2 id="basic-component">basic component<a class="anchor" aria-label="anchor" href="#basic-component"></a>
 </h2>
-<p>The simplest component is a function that wraps a tag with a fixed
+<p>the simplest component is a function that wraps a tag with a fixed
 structure, exposing only the parts that change as arguments.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">badge</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="co">#' A Badge</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @param label String /// Required.</span></span>
+<span><span class="co">#'              Label to show on the badge.</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @param variant String /// Optional.</span></span>
+<span><span class="co">#'                Utility class. Must be one of:</span></span>
+<span><span class="co">#'                - "primary" (default)</span></span>
+<span><span class="co">#'                - "secondary"</span></span>
+<span><span class="co">#'                - "success"</span></span>
+<span><span class="co">#'                - "danger"</span></span>
+<span><span class="co">#'                - "warning"</span></span>
+<span><span class="co">#'                - "info"</span></span>
+<span><span class="co">#'                - "light"</span></span>
+<span><span class="co">#'                - "dark"</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @return `hypertext.tag`</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @export</span></span>
+<span><span class="va">badge</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
 <span>  <span class="va">label</span>,</span>
 <span>  <span class="va">variant</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"primary"</span>,</span>
@@ -99,7 +122,10 @@ structure, exposing only the parts that change as arguments.</p>
 <span>  <span class="va">variant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg</a></span><span class="op">(</span>arg <span class="op">=</span> <span class="va">variant</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="va">tags</span><span class="op">$</span><span class="fu">span</span><span class="op">(</span></span>
-<span>    class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"badge text-bg-"</span>, <span class="va">variant</span><span class="op">)</span>,</span>
+<span>    class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"badge"</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"text-bg-"</span>, <span class="va">variant</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
 <span>    <span class="va">label</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span>
@@ -114,22 +140,43 @@ structure, exposing only the parts that change as arguments.</p>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">badge_c</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><span class="badge text-bg-primary">new</span> <span class="badge text-bg-danger">deprecated</span> <span class="badge text-bg-success">stable</span></p>
-<p>The <code>variant</code> argument maps directly to a Bootstrap
-utility class. The caller controls the label and colour; the structure
+<p>the <code>variant</code> argument maps directly to a bootstrap
+utility class. the caller controls the label and colour; the structure
 is fixed inside the function.</p>
 </div>
 <div class="section level2">
-<h2 id="composition">Composition<a class="anchor" aria-label="anchor" href="#composition"></a>
+<h2 id="composition">composition<a class="anchor" aria-label="anchor" href="#composition"></a>
 </h2>
-<p>Components can call other components. An <code>alert()</code>
-component can embed a <code>badge()</code> for the severity label,
-keeping both independently reusable.</p>
+<p>components can call other components.</p>
+<p>an <code>alert()</code> component can embed a <code>badge()</code>
+for the severity label, keeping both independently reusable.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">alert</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="co">#' An Alert</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @param message String /// Required.</span></span>
+<span><span class="co">#'                Message to show on the alert.</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @param type String /// Optional.</span></span>
+<span><span class="co">#'                Alert type. A utility class. Must be one of:</span></span>
+<span><span class="co">#'                - "info" (default)</span></span>
+<span><span class="co">#'                - "danger"</span></span>
+<span><span class="co">#'                - "warning"</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @param dismissible String /// Optional.</span></span>
+<span><span class="co">#'                 Should the alert be dismissible? Either:</span></span>
+<span><span class="co">#'                 - "no" (default)</span></span>
+<span><span class="co">#'                 - "yes"</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @return `hypertext.tag`</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @export</span></span>
+<span><span class="va">alert</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
 <span>  <span class="va">message</span>,</span>
-<span>  <span class="va">type</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"info"</span>, <span class="st">"warning"</span>, <span class="st">"danger"</span><span class="op">)</span></span>
+<span>  <span class="va">type</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"info"</span>, <span class="st">"danger"</span>, <span class="st">"warning"</span><span class="op">)</span>,</span>
+<span>  <span class="va">dismissible</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"no"</span>, <span class="st">"yes"</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">type</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg</a></span><span class="op">(</span>arg <span class="op">=</span> <span class="va">type</span><span class="op">)</span></span>
+<span>  <span class="va">dismissible</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg</a></span><span class="op">(</span>arg <span class="op">=</span> <span class="va">dismissible</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="va">label</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span></span>
 <span>    <span class="va">type</span>,</span>
@@ -139,12 +186,29 @@ keeping both independently reusable.</p>
 <span>    <span class="fu">badge</span><span class="op">(</span>label <span class="op">=</span> <span class="va">type</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
+<span>  <span class="va">classes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"alert"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"alert-"</span>, <span class="va">type</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">dismiss_btn</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">dismissible</span> <span class="op">==</span> <span class="st">"yes"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">classes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="va">classes</span>,</span>
+<span>      <span class="st">"alert-dismissible fade show"</span></span>
+<span>    <span class="op">)</span></span>
+<span></span>
+<span>    <span class="va">dismiss_btn</span> <span class="op">&lt;-</span> <span class="va">tags</span><span class="op">$</span><span class="fu">button</span><span class="op">(</span></span>
+<span>      type <span class="op">=</span> <span class="st">"button"</span>,</span>
+<span>      class <span class="op">=</span> <span class="st">"btn-close"</span>,</span>
+<span>      `data-bs-dismiss` <span class="op">=</span> <span class="st">"alert"</span>,</span>
+<span>      `aria-label` <span class="op">=</span> <span class="st">"Close"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span></span>
 <span>  <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
-<span>    class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"alert alert-"</span>, <span class="va">type</span><span class="op">)</span>,</span>
+<span>    class <span class="op">=</span> <span class="va">classes</span>,</span>
 <span>    role <span class="op">=</span> <span class="st">"alert"</span>,</span>
 <span>    <span class="va">label</span>,</span>
 <span>    <span class="st">" "</span>,</span>
-<span>    <span class="va">message</span></span>
+<span>    <span class="va">message</span>,</span>
+<span>    <span class="va">dismiss_btn</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
@@ -156,11 +220,17 @@ keeping both independently reusable.</p>
 <span><span class="va">alert_b</span> <span class="op">&lt;-</span> <span class="fu">alert</span><span class="op">(</span></span>
 <span>  message <span class="op">=</span> <span class="st">"Record deleted successfully."</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"danger"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">alert_c</span> <span class="op">&lt;-</span> <span class="fu">alert</span><span class="op">(</span></span>
+<span>  message <span class="op">=</span> <span class="st">"This is some info you need to know."</span>,</span>
+<span>  dismissible <span class="op">=</span> <span class="st">"yes"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
-<span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">alert_a</span><span class="op">)</span>,</span>
-<span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">alert_b</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">alert_a</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">alert_b</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">alert_c</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="alert alert-warning" role="alert">
 <span class="badge text-bg-warning">warning</span> Your session will
@@ -169,6 +239,11 @@ expire in 5 minutes.
 <div class="alert alert-danger" role="alert">
 <span class="badge text-bg-danger">danger</span> Record deleted
 successfully.
+</div>
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+<span class="badge text-bg-primary">info</span> This is some info you
+need to
+know.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 </div>
 <div class="section level2">
@@ -207,12 +282,12 @@ logic.</p>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="co"># without footer</span></span>
-<span><span class="va">card_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rstudio.github.io/bslib/reference/card.html" class="external-link">card</a></span><span class="op">(</span></span>
+<span><span class="va">card_a</span> <span class="op">&lt;-</span> <span class="fu">card</span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"Title A"</span>,</span>
 <span>  body <span class="op">=</span> <span class="st">"Some body text."</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># with footer</span></span>
-<span><span class="va">card_b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rstudio.github.io/bslib/reference/card.html" class="external-link">card</a></span><span class="op">(</span></span>
+<span><span class="va">card_b</span> <span class="op">&lt;-</span> <span class="fu">card</span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"Title B"</span>,</span>
 <span>  body <span class="op">=</span> <span class="st">"Some body text."</span>,</span>
 <span>  footer <span class="op">=</span> <span class="st">"Last updated: today"</span></span>

@@ -1,8 +1,8 @@
 ---
-title: "Building a component library"
+title: "building components"
 description: >
-  How to wrap hypertext tags into reusable R functions —
-  props, conditional children, composition, and lists.
+  how to wrap hypertext tags into reusable R functions,
+  conditional children and composition.
 ---
 
 ```{r setup, include = FALSE}
@@ -16,17 +16,41 @@ knitr::opts_chunk$set(
 library(hypertext)
 ```
 
-The core idea in hypertext is simple: tag functions are just R functions,
-and R functions compose naturally. You don't need a framework or a
+the core idea in hypertext is simple: tag functions are just R functions,
+and R functions compose naturally. no need for a framework or a
 special component system — a component is just a function that returns a
 `hypertext.tag`.
 
-## A basic component
+with `hypertext`, you can use any css framework of your choice. but
+for the examples that follow we'll use bootstrap classes for
+demo purposes and because this site is built using `pkgdown` which
+uses bootstrap by default.
 
-The simplest component is a function that wraps a tag with a fixed
+## basic component
+
+the simplest component is a function that wraps a tag with a fixed
 structure, exposing only the parts that change as arguments.
 
 ```{r badge}
+#' A Badge
+#'
+#' @param label String /// Required.
+#'              Label to show on the badge.
+#'
+#' @param variant String /// Optional.
+#'                Utility class. Must be one of:
+#'                - "primary" (default)
+#'                - "secondary"
+#'                - "success"
+#'                - "danger"
+#'                - "warning"
+#'                - "info"
+#'                - "light"
+#'                - "dark"
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
 badge <- function(
   label,
   variant = c(
@@ -43,7 +67,10 @@ badge <- function(
   variant <- match.arg(arg = variant)
 
   tags$span(
-    class = paste0("badge text-bg-", variant),
+    class = c(
+      "badge",
+      paste0("text-bg-", variant)
+    ),
     label
   )
 }
@@ -61,21 +88,44 @@ cat(
 )
 ```
 
-The `variant` argument maps directly to a Bootstrap utility class. The
+the `variant` argument maps directly to a bootstrap utility class. the
 caller controls the label and colour; the structure is fixed inside the
 function.
 
-## Composition
+## composition
 
-Components can call other components. An `alert()` component can embed a
-`badge()` for the severity label, keeping both independently reusable.
+components can call other components.
+
+an `alert()` component can embed a `badge()` for the severity label,
+keeping both independently reusable.
 
 ```{r alert}
+#' An Alert
+#'
+#' @param message String /// Required.
+#'                Message to show on the alert.
+#'
+#' @param type String /// Optional.
+#'                Alert type. A utility class. Must be one of:
+#'                - "info" (default)
+#'                - "danger"
+#'                - "warning"
+#'
+#' @param dismissible String /// Optional.
+#'                 Should the alert be dismissible? Either:
+#'                 - "no" (default)
+#'                 - "yes"
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
 alert <- function(
   message,
-  type = c("info", "warning", "danger")
+  type = c("info", "danger", "warning"),
+  dismissible = c("no", "yes")
 ) {
   type <- match.arg(arg = type)
+  dismissible <- match.arg(arg = dismissible)
 
   label <- switch(
     type,
@@ -85,12 +135,29 @@ alert <- function(
     badge(label = type)
   )
 
+  classes <- c("alert", paste0("alert-", type))
+  dismiss_btn <- NULL
+  if (dismissible == "yes") {
+    classes <- c(
+      classes,
+      "alert-dismissible fade show"
+    )
+
+    dismiss_btn <- tags$button(
+      type = "button",
+      class = "btn-close",
+      `data-bs-dismiss` = "alert",
+      `aria-label` = "Close"
+    )
+  }
+
   tags$div(
-    class = paste0("alert alert-", type),
+    class = classes,
     role = "alert",
     label,
     " ",
-    message
+    message,
+    dismiss_btn
   )
 }
 
@@ -103,12 +170,18 @@ alert_b <- alert(
   message = "Record deleted successfully.",
   type = "danger"
 )
+
+alert_c <- alert(
+  message = "This is some info you need to know.",
+  dismissible = "yes"
+)
 ```
 
 ```{r composition-alerts, results = "asis"}
 cat(
-render(alert_a),
-render(alert_b)
+  render(alert_a),
+  render(alert_b),
+  render(alert_c)
 )
 ```
 

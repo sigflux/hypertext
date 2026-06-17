@@ -1,20 +1,39 @@
-# Building a component library
+# building components
 
 ``` r
 library(hypertext)
 ```
 
-The core idea in hypertext is simple: tag functions are just R
-functions, and R functions compose naturally. You don’t need a framework
-or a special component system — a component is just a function that
-returns a `hypertext.tag`.
+the core idea in hypertext is simple: tag functions are just R
+functions, and R functions compose naturally. no need for a framework or
+a special component system — a component is just a function that returns
+a `hypertext.tag`.
 
-## A basic component
+## basic component
 
-The simplest component is a function that wraps a tag with a fixed
+the simplest component is a function that wraps a tag with a fixed
 structure, exposing only the parts that change as arguments.
 
 ``` r
+#' A Badge
+#'
+#' @param label String /// Required.
+#'              Label to show on the badge.
+#'
+#' @param variant String /// Optional.
+#'                Utility class. Must be one of:
+#'                - "primary" (default)
+#'                - "secondary"
+#'                - "success"
+#'                - "danger"
+#'                - "warning"
+#'                - "info"
+#'                - "light"
+#'                - "dark"
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
 badge <- function(
   label,
   variant = c(
@@ -31,7 +50,10 @@ badge <- function(
   variant <- match.arg(arg = variant)
 
   tags$span(
-    class = paste0("badge text-bg-", variant),
+    class = c(
+      "badge",
+      paste0("text-bg-", variant)
+    ),
     label
   )
 }
@@ -51,21 +73,52 @@ cat(
 
 new deprecated stable
 
-The `variant` argument maps directly to a Bootstrap utility class. The
+the `variant` argument maps directly to a bootstrap utility class. the
 caller controls the label and colour; the structure is fixed inside the
 function.
 
-## Composition
+## composition
 
-Components can call other components. An `alert()` component can embed a
-`badge()` for the severity label, keeping both independently reusable.
+components can call other components.
+
+an `alert()` component can embed a `badge()` for the severity label,
+keeping both independently reusable.
 
 ``` r
+#' An Alert
+#'
+#' @param message String /// Required.
+#'                Message to show on the alert.
+#'
+#' @param type String /// Optional.
+#'                Alert type. A utility class. Must be one of:
+#'                - "info" (default)
+#'                - "danger"
+#'                - "warning"
+#'
+#' @param dismissable String /// Optional.
+#'                 Should the alert be dismissable? Either:
+#'                 - "no" (default)
+#'                 - "yes"
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
 alert <- function(
   message,
-  type = c("info", "warning", "danger")
+  type = c("info", "danger", "warning"),
+  dismissable = c("no", "yes")
 ) {
   type <- match.arg(arg = type)
+  dismissable <- match.arg(arg = dismissable)
+
+  alert_classes <- c("alert", paste0("alert-", type))
+  if (dismissable == "yes") {
+    alert_classes <- c(
+      alert_classes,
+      "alert-dismissible fade show"
+    )
+  }
 
   label <- switch(
     type,
@@ -76,7 +129,7 @@ alert <- function(
   )
 
   tags$div(
-    class = paste0("alert alert-", type),
+    class = alert_classes,
     role = "alert",
     label,
     " ",
@@ -93,18 +146,26 @@ alert_b <- alert(
   message = "Record deleted successfully.",
   type = "danger"
 )
+
+alert_c <- alert(
+  message = "This is some info you need to know.",
+  dismissable = "yes"
+)
 ```
 
 ``` r
 cat(
-render(alert_a),
-render(alert_b)
+  render(alert_a),
+  render(alert_b),
+  render(alert_c)
 )
 ```
 
 warning Your session will expire in 5 minutes.
 
 danger Record deleted successfully.
+
+info This is some info you need to know.
 
 ## Conditional children
 

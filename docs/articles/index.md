@@ -2,11 +2,11 @@
 
 ### All vignettes
 
-- [Building a component
-  library](https://sigflux.github.io/hypertext/articles/components.md):
+- [building
+  components](https://sigflux.github.io/hypertext/articles/components.md):
 
-  How to wrap hypertext tags into reusable R functions — props,
-  conditional children, composition, and lists.
+  how to wrap hypertext tags into reusable R functions, conditional
+  children and composition.
 
 - [SVG with
   hypertext](https://sigflux.github.io/hypertext/articles/svg.md):
