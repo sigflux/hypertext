@@ -31,6 +31,131 @@ uses bootstrap by default.
 the simplest component is a function that wraps a tag with a fixed
 structure, exposing only the parts that change as arguments.
 
+a really good example here is a button:
+
+```{r btn}
+btn <- tags$button(
+  type = "button",
+  class = "btn",
+  "Click Me!"
+)
+```
+
+in your app and depending on your styling, this snippet might look
+like this:
+
+```{r btn-render, results = "asis"}
+cat(
+  render(btn)
+)
+```
+
+if you want to re-use this snippet in other parts of your app,
+you need to convert it to a component:
+
+```{r btn-component, results = "asis"}
+Button <- function() {
+  tags$button(
+    type = "button",
+    class = "btn",
+    "Click Me!"
+  )
+}
+
+cat(
+  render(Button())
+)
+```
+that'd be the default button rendered. but sometimes, you need to tweak
+the button a little bit. so let's identify the moving parts:
+
+- `type`: As per [mdn docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#type),
+  the type can either be:
+  - "submit": the button submits form data to the server.
+  - "reset": the button resets all the controls to their initial values.
+  - "button": the button has no default behaviour, and does nothing when
+    pressed by default.
+- `class`: we'd need to pass more [custom] classes to our button. these extra
+  classes would dictate it's styling and behaviour when clicked.
+- `label`: each button in our app probably has a different label.
+
+with that, let's now improve the `Button()` component:
+
+```{r improved-btn-component}
+#' A Button
+#'
+#' @param label String /// Required.
+#'              The button label.
+#'
+#' @param type String /// Optional.
+#'             Button type. Either:
+#'             - "button" (default)
+#'             - "submit"
+#'             - "reset"
+#'
+#' @param class Character vector /// Optional.
+#'              CSS classes to apply to the button.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+Button <- function(
+  label,
+  type = c("button", "submit", "reset"),
+  class = NULL
+) {
+  type <- match.arg(arg = type)
+
+  tags$button(
+    type = type,
+    class = c("btn", class),
+    label
+  )
+}
+```
+
+see how this works? we even added some function docs there. practically,
+you'd call the component like this:
+
+```{r call-improved-btn-component, results = "asis"}
+btn_a <- Button(label = "Default")
+
+btn_b <- Button(
+  label = "Submit",
+  type = "submit",
+  class = "btn-primary"
+)
+
+btn_c <- Button(
+  label = "Confirm",
+  class = "btn-success"
+)
+
+btn_d <- Button(
+  label = "Delete",
+  class = "btn-danger"
+)
+```
+
+and this how those would look:
+
+```{r render-improved-btn-component, results = "asis"}
+my_btns <- tag_list(
+  btn_a,
+  btn_b,
+  btn_c,
+  btn_d
+)
+
+cat(
+  render(my_btns)
+)
+```
+
+## composition
+
+say we have this `Badge()` component:
+
 ```{r badge}
 #' A Badge
 #'
@@ -40,29 +165,15 @@ structure, exposing only the parts that change as arguments.
 #' @param variant String /// Optional.
 #'                Utility class. Must be one of:
 #'                - "primary" (default)
-#'                - "secondary"
 #'                - "success"
 #'                - "danger"
-#'                - "warning"
-#'                - "info"
-#'                - "light"
-#'                - "dark"
 #'
 #' @return `hypertext.tag`
 #'
 #' @export
-badge <- function(
+Badge <- function(
   label,
-  variant = c(
-    "primary",
-    "secondary",
-    "success",
-    "danger",
-    "warning",
-    "info",
-    "light",
-    "dark"
-  )
+  variant = c("primary", "success", "danger")
 ) {
   variant <- match.arg(arg = variant)
 
@@ -75,10 +186,14 @@ badge <- function(
   )
 }
 
-badge_a <- badge("new")
-badge_b <- badge("deprecated", variant = "danger")
-badge_c <- badge("stable", variant = "success")
+badge_a <- Badge("new")
+badge_b <- Badge("deprecated", variant = "danger")
+badge_c <- Badge("stable", variant = "success")
 ```
+
+the `variant` argument maps directly to a bootstrap utility class. the
+caller controls the label and colour; the structure is fixed inside the
+function.
 
 ```{r basic-components-badges, results = "asis"}
 cat(
@@ -88,15 +203,9 @@ cat(
 )
 ```
 
-the `variant` argument maps directly to a bootstrap utility class. the
-caller controls the label and colour; the structure is fixed inside the
-function.
-
-## composition
-
 components can call other components.
 
-an `alert()` component can embed a `badge()` for the severity label,
+an `Alert()` component can embed a `Badge()` for the severity label,
 keeping both independently reusable.
 
 ```{r alert}
@@ -119,7 +228,7 @@ keeping both independently reusable.
 #' @return `hypertext.tag`
 #'
 #' @export
-alert <- function(
+Alert <- function(
   message,
   type = c("info", "danger", "warning"),
   dismissible = c("no", "yes")
@@ -128,11 +237,10 @@ alert <- function(
   dismissible <- match.arg(arg = dismissible)
 
   label <- switch(
-    type,
-    info = badge(label = "info", variant = "primary"),
-    warning = badge(label = "warning", variant = "warning"),
-    danger = badge(label = "danger", variant = "danger"),
-    badge(label = type)
+    EXPR = type,
+    info = Badge(label = "info", variant = "success"),
+    warning = Badge(label = "warning", variant = "primary"),
+    danger = Badge(label = "danger", variant = "danger")
   )
 
   classes <- c("alert", paste0("alert-", type))
@@ -161,17 +269,17 @@ alert <- function(
   )
 }
 
-alert_a <- alert(
+alert_a <- Alert(
   message = "Your session will expire in 5 minutes.",
   type = "warning"
 )
 
-alert_b <- alert(
+alert_b <- Alert(
   message = "Record deleted successfully.",
   type = "danger"
 )
 
-alert_c <- alert(
+alert_c <- Alert(
   message = "This is some info you need to know.",
   dismissible = "yes"
 )
@@ -230,9 +338,6 @@ card_b <- card(
   body = "Some body text.",
   footer = "Last updated: today"
 )
-
-render(card_a)
-render(card_b)
 ```
 
 ```{r conditional-children-cards, results = "asis"}
@@ -244,6 +349,11 @@ render(card_b)
 
 When `footer` is `NULL` the `if` expression evaluates to `NULL`, which
 hypertext simply ignores. No conditional rendering plumbing needed.
+
+## ellipsis
+
+sometimes, you need to pass an unknown number of tags as children to a tag.
+that's where the dots (`...`) come in.
 
 ## List children
 
@@ -294,7 +404,7 @@ cat(
 ## Worked example — profile card
 
 Putting it together: a `profile_card()` component that combines an
-image, a heading, a paragraph, and the `badge()` component from earlier.
+image, a heading, a paragraph, and the `Badge()` component from earlier.
 
 ```{r profile_card}
 profile_card <- function(name, role, bio, avatar_url) {
@@ -309,7 +419,7 @@ profile_card <- function(name, role, bio, avatar_url) {
     tags$div(
       class = "card-body",
       tags$h5(class = "card-title", name),
-      badge(role, variant = "secondary"),
+      Badge(role, variant = "success"),
       tags$p(class = "card-text mt-2", bio)
     )
   )
