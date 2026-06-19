@@ -74,9 +74,8 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/sigflux/hypertext" class="external-link">hypertext</a></span><span class="op">)</span></span></code></pre></div>
 <p>the core idea in hypertext is simple: tag functions are just R
-functions, and R functions compose naturally. no need for a framework or
-a special component system — a component is just a function that returns
-a <code>hypertext.tag</code>.</p>
+functions, and R functions compose naturally. a component is just a
+function that returns a <code>hypertext.tag</code>.</p>
 <p>with <code>hypertext</code>, you can use any css framework of your
 choice. but for the examples that follow we’ll use bootstrap classes for
 demo purposes and because this site is built using <code>pkgdown</code>
@@ -396,84 +395,10 @@ know.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label=
 <span class="badge text-bg-success">success</span> Report rendered
 successfully.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
-</div>
-<div class="section level2">
-<h2 id="conditional-children">Conditional children<a class="anchor" aria-label="anchor" href="#conditional-children"></a>
-</h2>
-<p>Use <code>NULL</code> as a sentinel for optional children.
-<code><a href="../reference/render.html">render()</a></code> drops <code>NULL</code> values silently, so you
-can conditionally include children without special-casing the rendering
-logic.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">card</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
-<span>  <span class="va">title</span>,</span>
-<span>  <span class="va">body</span>,</span>
-<span>  <span class="va">footer</span> <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
-<span>    class <span class="op">=</span> <span class="st">"card"</span>,</span>
-<span>    <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
-<span>      class <span class="op">=</span> <span class="st">"card-header"</span>,</span>
-<span>      <span class="va">tags</span><span class="op">$</span><span class="fu">strong</span><span class="op">(</span><span class="va">title</span><span class="op">)</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
-<span>      class <span class="op">=</span> <span class="st">"card-body"</span>,</span>
-<span>      <span class="va">tags</span><span class="op">$</span><span class="fu">p</span><span class="op">(</span></span>
-<span>        class <span class="op">=</span> <span class="st">"card-text"</span>,</span>
-<span>        <span class="va">body</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">footer</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
-<span>        class <span class="op">=</span> <span class="st">"card-footer text-muted"</span>,</span>
-<span>        <span class="va">footer</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">}</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># without footer</span></span>
-<span><span class="va">card_a</span> <span class="op">&lt;-</span> <span class="fu">card</span><span class="op">(</span></span>
-<span>  title <span class="op">=</span> <span class="st">"Title A"</span>,</span>
-<span>  body <span class="op">=</span> <span class="st">"Some body text."</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co"># with footer</span></span>
-<span><span class="va">card_b</span> <span class="op">&lt;-</span> <span class="fu">card</span><span class="op">(</span></span>
-<span>  title <span class="op">=</span> <span class="st">"Title B"</span>,</span>
-<span>  body <span class="op">=</span> <span class="st">"Some body text."</span>,</span>
-<span>  footer <span class="op">=</span> <span class="st">"Last updated: today"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
-<span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">card_a</span><span class="op">)</span>,</span>
-<span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">card_b</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="card">
-<div class="card-header">
-<strong>Title A</strong>
-</div>
-<div class="card-body">
-<p class="card-text">
-Some body text.
-</p>
-</div>
-</div>
-<div class="card">
-<div class="card-header">
-<strong>Title B</strong>
-</div>
-<div class="card-body">
-<p class="card-text">
-Some body text.
-</p>
-</div>
-<div class="card-footer text-muted">
-Last updated: today
-</div>
-</div>
-<p>When <code>footer</code> is <code>NULL</code> the <code>if</code>
-expression evaluates to <code>NULL</code>, which hypertext simply
-ignores. No conditional rendering plumbing needed.</p>
+<p>in that <code>Alert()</code> example, <code>dismiss_btn</code> is a
+conditional child, that’s why we set it to <code>NULL</code> by default.
+<code>hypertext</code> tags drop all <code>NULL</code> children and
+properties.</p>
 </div>
 <div class="section level2">
 <h2 id="ellipsis">ellipsis<a class="anchor" aria-label="anchor" href="#ellipsis"></a>
@@ -482,151 +407,20 @@ ignores. No conditional rendering plumbing needed.</p>
 a tag. that’s where the dots (<code>...</code>) come in.</p>
 </div>
 <div class="section level2">
-<h2 id="list-children">List children<a class="anchor" aria-label="anchor" href="#list-children"></a>
+<h2 id="mapping-over-items">mapping over items<a class="anchor" aria-label="anchor" href="#mapping-over-items"></a>
 </h2>
-<p><code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code> returns a plain list, and hypertext flattens
-plain lists of children automatically. This means you can map over a
-vector to produce a list of child nodes without any extra
-unwrapping.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nav_bar</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">links</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># links: named character vector, names = labels, values = hrefs</span></span>
-<span>  <span class="va">items</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
-<span>    X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">links</span><span class="op">)</span>,</span>
-<span>    FUN <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">label</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va">tags</span><span class="op">$</span><span class="fu">li</span><span class="op">(</span></span>
-<span>        class <span class="op">=</span> <span class="st">"nav-item"</span>,</span>
-<span>        <span class="va">tags</span><span class="op">$</span><span class="fu">a</span><span class="op">(</span></span>
-<span>          class <span class="op">=</span> <span class="st">"nav-link"</span>,</span>
-<span>          href <span class="op">=</span> <span class="va">links</span><span class="op">[[</span><span class="va">label</span><span class="op">]</span><span class="op">]</span>,</span>
-<span>          <span class="va">label</span></span>
-<span>        <span class="op">)</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">}</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">tags</span><span class="op">$</span><span class="fu">nav</span><span class="op">(</span></span>
-<span>    <span class="va">tags</span><span class="op">$</span><span class="fu">ul</span><span class="op">(</span></span>
-<span>      class <span class="op">=</span> <span class="st">"nav"</span>,</span>
-<span>      <span class="va">items</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">site_links</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Home"</span> <span class="op">=</span> <span class="st">"/"</span>,</span>
-<span>  <span class="st">"Reference"</span> <span class="op">=</span> <span class="st">"/reference/"</span>,</span>
-<span>  <span class="st">"Articles"</span> <span class="op">=</span> <span class="st">"/articles/"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">my_nav</span> <span class="op">&lt;-</span> <span class="fu">nav_bar</span><span class="op">(</span><span class="va">site_links</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">my_nav</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<nav><ul class="nav">
-<li class="nav-item">
-<a class="nav-link" href="/">Home</a>
-</li>
-<li class="nav-item">
-<a class="nav-link" href="/reference/">Reference</a>
-</li>
-<li class="nav-item">
-<a class="nav-link" href="/articles/">Articles</a>
-</li>
-</ul></nav>
+<p>you can map over items and return <code>hypertext.tag</code> objects.
+to do the mapping, use list-returning R functions eg.
+<code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code>, <code><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Map()</a></code>, etc. then wrap the resultant
+list in <code><a href="../reference/tag_list.html">tag_list()</a></code> which basically groups sibling nodes
+without wrapping them in a parent element.</p>
 </div>
 <div class="section level2">
-<h2 id="worked-example-profile-card">Worked example — profile card<a class="anchor" aria-label="anchor" href="#worked-example-profile-card"></a>
+<h2 id="conclusion">conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
 </h2>
-<p>Putting it together: a <code>profile_card()</code> component that
-combines an image, a heading, a paragraph, and the <code>Badge()</code>
-component from earlier.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">profile_card</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">name</span>, <span class="va">role</span>, <span class="va">bio</span>, <span class="va">avatar_url</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
-<span>    class <span class="op">=</span> <span class="st">"card"</span>,</span>
-<span>    style <span class="op">=</span> <span class="st">"max-width: 320px;"</span>,</span>
-<span>    <span class="va">tags</span><span class="op">$</span><span class="fu">img</span><span class="op">(</span></span>
-<span>      src <span class="op">=</span> <span class="va">avatar_url</span>,</span>
-<span>      class <span class="op">=</span> <span class="st">"card-img-top"</span>,</span>
-<span>      alt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Photo of"</span>, <span class="va">name</span><span class="op">)</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
-<span>      class <span class="op">=</span> <span class="st">"card-body"</span>,</span>
-<span>      <span class="va">tags</span><span class="op">$</span><span class="fu">h5</span><span class="op">(</span>class <span class="op">=</span> <span class="st">"card-title"</span>, <span class="va">name</span><span class="op">)</span>,</span>
-<span>      <span class="fu">Badge</span><span class="op">(</span><span class="va">role</span>, variant <span class="op">=</span> <span class="st">"success"</span><span class="op">)</span>,</span>
-<span>      <span class="va">tags</span><span class="op">$</span><span class="fu">p</span><span class="op">(</span>class <span class="op">=</span> <span class="st">"card-text mt-2"</span>, <span class="va">bio</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">my_profile</span> <span class="op">&lt;-</span> <span class="fu">profile_card</span><span class="op">(</span></span>
-<span>  name <span class="op">=</span> <span class="st">"Ada Lovelace"</span>,</span>
-<span>  role <span class="op">=</span> <span class="st">"mathematician"</span>,</span>
-<span>  bio <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
-<span>    <span class="st">"First to recognise that a computing machine had"</span>,</span>
-<span>    <span class="st">"applications beyond pure calculation."</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  avatar_url <span class="op">=</span> <span class="st">"https://example.com/ada.jpg"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">my_profile</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="card" style="max-width: 320px;">
-<img src="https://example.com/ada.jpg" class="card-img-top" alt="Photo of Ada Lovelace"><div class="card-body">
-<h5 class="card-title">
-Ada Lovelace
-</h5>
-<span class="badge text-bg-success">mathematician</span>
-<p class="card-text mt-2">
-First to recognise that a computing machine had applications beyond pure
-calculation.
-</p>
-</div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
-</h2>
-<table class="table">
-<colgroup>
-<col width="50%">
-<col width="50%">
-</colgroup>
-<thead><tr class="header">
-<th>Pattern</th>
-<th>How</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>Fixed structure, variable content</td>
-<td>Function argument → attribute or child</td>
-</tr>
-<tr class="even">
-<td>Optional children</td>
-<td>Default to <code>NULL</code>; <code>if (!is.null(x))</code>
-guard</td>
-</tr>
-<tr class="odd">
-<td>Composition</td>
-<td>Call one component function inside another</td>
-</tr>
-<tr class="even">
-<td>Lists of children</td>
-<td>
-<code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code> → plain list → auto-flattened</td>
-</tr>
-<tr class="odd">
-<td>Reuse across pages</td>
-<td>Source the file or put components in a package</td>
-</tr>
-</tbody>
-</table>
-<p>A component library for a real project is just a collection of these
-functions. There is no registration, no lifecycle, no virtual DOM — just
-R functions that return tag objects.</p>
+<p>components are functions that return <code>hypertext.tag</code>
+objects. you can bake styling (css) and behaviour (js) into them, and
+they’re composable.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

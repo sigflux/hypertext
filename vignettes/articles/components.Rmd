@@ -17,9 +17,8 @@ library(hypertext)
 ```
 
 the core idea in hypertext is simple: tag functions are just R functions,
-and R functions compose naturally. no need for a framework or a
-special component system — a component is just a function that returns a
-`hypertext.tag`.
+and R functions compose naturally. a component is just a function that
+returns a `hypertext.tag`.
 
 with `hypertext`, you can use any css framework of your choice. but
 for the examples that follow we'll use bootstrap classes for
@@ -327,165 +326,24 @@ cat(
 )
 ```
 
-## Conditional children
-
-Use `NULL` as a sentinel for optional children. `render()` drops `NULL`
-values silently, so you can conditionally include children without
-special-casing the rendering logic.
-
-```{r card}
-card <- function(
-  title,
-  body,
-  footer = NULL
-) {
-  tags$div(
-    class = "card",
-    tags$div(
-      class = "card-header",
-      tags$strong(title)
-    ),
-    tags$div(
-      class = "card-body",
-      tags$p(
-        class = "card-text",
-        body
-      )
-    ),
-    if (!is.null(footer)) {
-      tags$div(
-        class = "card-footer text-muted",
-        footer
-      )
-    }
-  )
-}
-
-# without footer
-card_a <- card(
-  title = "Title A",
-  body = "Some body text."
-)
-# with footer
-card_b <- card(
-  title = "Title B",
-  body = "Some body text.",
-  footer = "Last updated: today"
-)
-```
-
-```{r conditional-children-cards, results = "asis"}
-cat(
-render(card_a),
-render(card_b)
-)
-```
-
-When `footer` is `NULL` the `if` expression evaluates to `NULL`, which
-hypertext simply ignores. No conditional rendering plumbing needed.
+in that `Alert()` example, `dismiss_btn` is a conditional child, that's
+why we set it to `NULL` by default. `hypertext` tags drop all `NULL`
+children and properties.
 
 ## ellipsis
 
 sometimes, you need to pass an unknown number of tags as children to a tag.
 that's where the dots (`...`) come in.
 
-## List children
+## mapping over items
 
-`lapply()` returns a plain list, and hypertext flattens plain lists of
-children automatically. This means you can map over a vector to produce
-a list of child nodes without any extra unwrapping.
+you can map over items and return `hypertext.tag` objects. to do the
+mapping, use list-returning R functions eg. `lapply()`, `Map()`, etc.
+then wrap the resultant list in `tag_list()` which basically
+groups sibling nodes without wrapping them in a parent element.
 
-```{r nav_bar}
-nav_bar <- function(links) {
-  # links: named character vector, names = labels, values = hrefs
-  items <- lapply(
-    X = names(links),
-    FUN = function(label) {
-      tags$li(
-        class = "nav-item",
-        tags$a(
-          class = "nav-link",
-          href = links[[label]],
-          label
-        )
-      )
-    }
-  )
+## conclusion
 
-  tags$nav(
-    tags$ul(
-      class = "nav",
-      items
-    )
-  )
-}
-
-site_links <- c(
-  "Home" = "/",
-  "Reference" = "/reference/",
-  "Articles" = "/articles/"
-)
-
-my_nav <- nav_bar(site_links)
-```
-
-```{r list-chidren-nav, results = "asis"}
-cat(
-  render(my_nav)
-)
-```
-
-## Worked example — profile card
-
-Putting it together: a `profile_card()` component that combines an
-image, a heading, a paragraph, and the `Badge()` component from earlier.
-
-```{r profile_card}
-profile_card <- function(name, role, bio, avatar_url) {
-  tags$div(
-    class = "card",
-    style = "max-width: 320px;",
-    tags$img(
-      src = avatar_url,
-      class = "card-img-top",
-      alt = paste("Photo of", name)
-    ),
-    tags$div(
-      class = "card-body",
-      tags$h5(class = "card-title", name),
-      Badge(role, variant = "success"),
-      tags$p(class = "card-text mt-2", bio)
-    )
-  )
-}
-
-my_profile <- profile_card(
-  name = "Ada Lovelace",
-  role = "mathematician",
-  bio = paste(
-    "First to recognise that a computing machine had",
-    "applications beyond pure calculation."
-  ),
-  avatar_url = "https://example.com/ada.jpg"
-)
-```
-
-```{r worked-example-card, results = "asis"}
-cat(
-  render(my_profile)
-)
-```
-
-## Summary
-
-| Pattern | How |
-|---|---|
-| Fixed structure, variable content | Function argument → attribute or child |
-| Optional children | Default to `NULL`; `if (!is.null(x))` guard |
-| Composition | Call one component function inside another |
-| Lists of children | `lapply()` → plain list → auto-flattened |
-| Reuse across pages | Source the file or put components in a package |
-
-A component library for a real project is just a collection of these
-functions. There is no registration, no lifecycle, no virtual DOM —
-just R functions that return tag objects.
+components are functions that return `hypertext.tag` objects.
+you can bake styling (css) and behaviour (js) into them, and they're
+composable.
