@@ -335,12 +335,136 @@ children and properties.
 sometimes, you need to pass an unknown number of tags as children to a tag.
 that's where the dots (`...`) come in.
 
+the dots are useful when the component owns the outer structure, but the
+caller owns the inner content.
+
+let's make a `Card()` component. the header structure is fixed, but the body
+can contain any number of children.
+
+```{r card}
+#' A Card
+#'
+#' @param title String /// Required.
+#'              Title to show in the card header.
+#'
+#' @param ... Tags, text, or other renderable objects /// Optional.
+#'            Body content for the card.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+Card <- function(
+  title,
+  ...
+) {
+  tags$div(
+    class = "card my-2",
+    tags$div(
+      class = "card-header",
+      tags$strong(title)
+    ),
+    tags$div(
+      class = "card-body",
+      ...
+    )
+  )
+}
+
+card_a <- Card(
+  title = "Report status",
+  tags$p(
+    class = "card-text",
+    "The report rendered successfully."
+  )
+)
+
+card_b <- Card(
+  title = "Package status",
+  tags$p(
+    class = "card-text",
+    "Current release channel: ",
+    Badge("stable", variant = "success")
+  ),
+  Button(
+    label = "View details",
+    class = "btn-sm btn-primary"
+  )
+)
+```
+
+and here's how those might look:
+
+```{r ellipsis-cards, results = "asis"}
+cards <- tag_list(
+  card_a,
+  card_b
+)
+
+cat(
+  render(cards)
+)
+```
+
+inside `Card()`, the `...` are forwarded into `tags$div(class = "card-body")`.
+that means each call site can decide whether the body is plain text, a
+paragraph, a badge, a button, or a mix of all of them.
+
 ## mapping over items
 
 you can map over items and return `hypertext.tag` objects. to do the
 mapping, use list-returning R functions eg. `lapply()`, `Map()`, etc.
-then wrap the resultant list in `tag_list()` which basically
-groups sibling nodes without wrapping them in a parent element.
+plain lists returned by these functions are flattened automatically when
+passed as children to a tag.
+
+here's a `ListGroup()` component that maps a character vector to `<li>`
+children:
+
+```{r list-group}
+#' A List Group
+#'
+#' @param items Character vector /// Required.
+#'              Items to show in the list group.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+ListGroup <- function(items) {
+  tags$ul(
+    class = "list-group list-group-numbered my-2",
+    lapply(
+      X = items,
+      FUN = function(item) {
+        tags$li(
+          class = "list-group-item",
+          item
+        )
+      }
+    )
+  )
+}
+
+todos <- c(
+  "Write the component",
+  "Render it",
+  "Reuse it"
+)
+
+todo_list <- ListGroup(todos)
+```
+
+```{r render-list-group, results = "asis"}
+cat(
+  render(todo_list)
+)
+```
+
+`lapply()` returns a plain list of `tags$li()` nodes. because that list is
+passed inside `tags$ul()`, `hypertext` treats each item as a child of the
+`<ul>`.
+
+use `tag_list()` when you want to group sibling nodes without adding a parent
+element. use a plain mapped list when those sibling nodes already have a parent
+tag, like the `<ul>` above.
 
 ## conclusion
 

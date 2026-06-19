@@ -405,15 +405,161 @@ properties.</p>
 </h2>
 <p>sometimes, you need to pass an unknown number of tags as children to
 a tag. that’s where the dots (<code>...</code>) come in.</p>
+<p>the dots are useful when the component owns the outer structure, but
+the caller owns the inner content.</p>
+<p>let’s make a <code>Card()</code> component. the header structure is
+fixed, but the body can contain any number of children.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#' A Card</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @param title String /// Required.</span></span>
+<span><span class="co">#'              Title to show in the card header.</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @param ... Tags, text, or other renderable objects /// Optional.</span></span>
+<span><span class="co">#'            Body content for the card.</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @return `hypertext.tag`</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @export</span></span>
+<span><span class="va">Card</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
+<span>  <span class="va">title</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
+<span>    class <span class="op">=</span> <span class="st">"card my-2"</span>,</span>
+<span>    <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
+<span>      class <span class="op">=</span> <span class="st">"card-header"</span>,</span>
+<span>      <span class="va">tags</span><span class="op">$</span><span class="fu">strong</span><span class="op">(</span><span class="va">title</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
+<span>      class <span class="op">=</span> <span class="st">"card-body"</span>,</span>
+<span>      <span class="va">...</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">card_a</span> <span class="op">&lt;-</span> <span class="fu">Card</span><span class="op">(</span></span>
+<span>  title <span class="op">=</span> <span class="st">"Report status"</span>,</span>
+<span>  <span class="va">tags</span><span class="op">$</span><span class="fu">p</span><span class="op">(</span></span>
+<span>    class <span class="op">=</span> <span class="st">"card-text"</span>,</span>
+<span>    <span class="st">"The report rendered successfully."</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">card_b</span> <span class="op">&lt;-</span> <span class="fu">Card</span><span class="op">(</span></span>
+<span>  title <span class="op">=</span> <span class="st">"Package status"</span>,</span>
+<span>  <span class="va">tags</span><span class="op">$</span><span class="fu">p</span><span class="op">(</span></span>
+<span>    class <span class="op">=</span> <span class="st">"card-text"</span>,</span>
+<span>    <span class="st">"Current release channel: "</span>,</span>
+<span>    <span class="fu">Badge</span><span class="op">(</span><span class="st">"stable"</span>, variant <span class="op">=</span> <span class="st">"success"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  <span class="fu">Button</span><span class="op">(</span></span>
+<span>    label <span class="op">=</span> <span class="st">"View details"</span>,</span>
+<span>    class <span class="op">=</span> <span class="st">"btn-sm btn-primary"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>and here’s how those might look:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cards</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tag_list.html">tag_list</a></span><span class="op">(</span></span>
+<span>  <span class="va">card_a</span>,</span>
+<span>  <span class="va">card_b</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">cards</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="card my-2">
+<div class="card-header">
+<strong>Report status</strong>
+</div>
+<div class="card-body">
+<p class="card-text">
+The report rendered successfully.
+</p>
+</div>
+</div>
+<div class="card my-2">
+<div class="card-header">
+<strong>Package status</strong>
+</div>
+<div class="card-body">
+<p class="card-text">
+Current release channel: <span class="badge text-bg-success">stable</span>
+</p>
+<button type="button" class="btn btn-sm btn-primary">
+View details
+</button>
+</div>
+</div>
+<p>inside <code>Card()</code>, the <code>...</code> are forwarded into
+<code>tags$div(class = "card-body")</code>. that means each call site
+can decide whether the body is plain text, a paragraph, a badge, a
+button, or a mix of all of them.</p>
 </div>
 <div class="section level2">
 <h2 id="mapping-over-items">mapping over items<a class="anchor" aria-label="anchor" href="#mapping-over-items"></a>
 </h2>
 <p>you can map over items and return <code>hypertext.tag</code> objects.
 to do the mapping, use list-returning R functions eg.
-<code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code>, <code><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Map()</a></code>, etc. then wrap the resultant
-list in <code><a href="../reference/tag_list.html">tag_list()</a></code> which basically groups sibling nodes
-without wrapping them in a parent element.</p>
+<code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code>, <code><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Map()</a></code>, etc. plain lists returned by
+these functions are flattened automatically when passed as children to a
+tag.</p>
+<p>here’s a <code>ListGroup()</code> component that maps a character
+vector to <code>&lt;li&gt;</code> children:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#' A List Group</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @param items Character vector /// Required.</span></span>
+<span><span class="co">#'              Items to show in the list group.</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @return `hypertext.tag`</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @export</span></span>
+<span><span class="va">ListGroup</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">items</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">tags</span><span class="op">$</span><span class="fu">ul</span><span class="op">(</span></span>
+<span>    class <span class="op">=</span> <span class="st">"list-group list-group-numbered my-2"</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
+<span>      X <span class="op">=</span> <span class="va">items</span>,</span>
+<span>      FUN <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">item</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="va">tags</span><span class="op">$</span><span class="fu">li</span><span class="op">(</span></span>
+<span>          class <span class="op">=</span> <span class="st">"list-group-item"</span>,</span>
+<span>          <span class="va">item</span></span>
+<span>        <span class="op">)</span></span>
+<span>      <span class="op">}</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">todos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Write the component"</span>,</span>
+<span>  <span class="st">"Render it"</span>,</span>
+<span>  <span class="st">"Reuse it"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">todo_list</span> <span class="op">&lt;-</span> <span class="fu">ListGroup</span><span class="op">(</span><span class="va">todos</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">todo_list</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<ul class="list-group list-group-numbered my-2">
+<li class="list-group-item">
+Write the component
+</li>
+<li class="list-group-item">
+Render it
+</li>
+<li class="list-group-item">
+Reuse it
+</li>
+</ul>
+<p><code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code> returns a plain list of <code>tags$li()</code>
+nodes. because that list is passed inside <code>tags$ul()</code>,
+<code>hypertext</code> treats each item as a child of the
+<code>&lt;ul&gt;</code>.</p>
+<p>use <code><a href="../reference/tag_list.html">tag_list()</a></code> when you want to group sibling nodes
+without adding a parent element. use a plain mapped list when those
+sibling nodes already have a parent tag, like the
+<code>&lt;ul&gt;</code> above.</p>
 </div>
 <div class="section level2">
 <h2 id="conclusion">conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
