@@ -4,12 +4,12 @@ template:
   bootstrap: 5
   light-switch: true
   bslib:
-    bg: "#ffffff"
-    fg: "#111111"
+    bg: "#fbf7ff"
+    fg: "#17111f"
     primary: "#7c3aed"
-    border-color: "#e5e5e5"
-    code-bg: "#f5f5f5"
-    code-color: "#7c3aed"
+    border-color: "#eadfff"
+    code-bg: "#111827"
+    code-color: "#e5e7eb"
     base_font: {google: "Geist"}
     heading_font: {google: "Geist"}
     code_font: {google: "Geist Mono"}
