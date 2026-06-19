@@ -1,0 +1,801 @@
+---
+title: "svg with hypertext"
+description: >
+  how to build inline svg with hypertext tags,
+  reusable svg components, gradients, data, and animation.
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r library}
+library(hypertext)
+```
+
+svg looks like a different world, but it is still just nested tags with
+attributes. `tags$svg()`, `tags$circle()`, `tags$rect()`, `tags$path()`,
+`tags$text()`, and friends all return `hypertext.tag` objects.
+
+that means everything from the components article still applies: start with
+a tag, identify the moving parts, wrap it in a function, then compose those
+functions into something more interesting.
+
+the nice part is that the result is inline svg. no image files, no base64
+strings in your source, no `<img>` tag. the graphic is part of the document.
+
+## first shape
+
+an svg needs a canvas. the `viewBox` says what coordinate system to use.
+inside that canvas, every shape is just another tag.
+
+```{r first-shape}
+orb <- tags$svg(
+  xmlns = "http://www.w3.org/2000/svg",
+  viewBox = "0 0 120 120",
+  width = "120",
+  height = "120",
+  tags$circle(
+    cx = "60",
+    cy = "60",
+    r = "42",
+    fill = "#22d3ee",
+    stroke = "#0f172a",
+    `stroke-width` = "4"
+  )
+)
+```
+
+```{r render-first-shape, results = "asis"}
+cat(
+  render(orb)
+)
+```
+
+named arguments become svg attributes. so `cx`, `cy`, `r`, `fill`, and
+`stroke` are all rendered directly onto the `<circle>` element.
+
+## a tray of shapes
+
+once you have one shape, you can place several shapes inside the same svg.
+the coordinate system starts at the top-left. `x` increases as you move right;
+`y` increases as you move down.
+
+```{r shape-tray}
+shape_tray <- tags$svg(
+  xmlns = "http://www.w3.org/2000/svg",
+  viewBox = "0 0 520 150",
+  width = "520",
+  height = "150",
+  tags$rect(
+    x = "0",
+    y = "0",
+    width = "520",
+    height = "150",
+    rx = "22",
+    fill = "#020617"
+  ),
+  tags$circle(
+    cx = "75",
+    cy = "75",
+    r = "38",
+    fill = "#22d3ee"
+  ),
+  tags$rect(
+    x = "150",
+    y = "37",
+    width = "76",
+    height = "76",
+    rx = "18",
+    fill = "#a78bfa"
+  ),
+  tags$line(
+    x1 = "282",
+    y1 = "110",
+    x2 = "358",
+    y2 = "40",
+    stroke = "#facc15",
+    `stroke-width` = "12",
+    `stroke-linecap` = "round"
+  ),
+  tags$path(
+    d = "M410 102 C430 20, 478 20, 498 102",
+    fill = "none",
+    stroke = "#fb7185",
+    `stroke-width` = "10",
+    `stroke-linecap` = "round"
+  )
+)
+```
+
+```{r render-shape-tray, results = "asis"}
+cat(
+  render(shape_tray)
+)
+```
+
+you can already see the pattern: svg is not special to `hypertext`. it is
+the same tag nesting model, with a different set of elements and attributes.
+
+## svg as a component
+
+we are going to write more svg, so let's remove the repeated wrapper. a small
+`Svg()` component can own the namespace, dimensions, and `viewBox`; callers
+can pass any children through `...`.
+
+```{r svg-component}
+#' An SVG Canvas
+#'
+#' @param width Number /// Required.
+#'              Width of the rendered svg.
+#'
+#' @param height Number /// Required.
+#'               Height of the rendered svg.
+#'
+#' @param ... Tags, text, or other renderable objects /// Optional.
+#'            Children to place inside the svg.
+#'
+#' @param viewBox String /// Optional.
+#'                SVG viewBox. Defaults to `0 0 width height`.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+Svg <- function(
+  width,
+  height,
+  ...,
+  viewBox = paste("0 0", width, height)
+) {
+  tags$svg(
+    xmlns = "http://www.w3.org/2000/svg",
+    viewBox = viewBox,
+    width = width,
+    height = height,
+    role = "img",
+    ...
+  )
+}
+```
+
+now the canvas is reusable:
+
+```{r use-svg-component}
+night_sky <- Svg(
+  width = 420,
+  height = 180,
+  tags$rect(
+    x = "0",
+    y = "0",
+    width = "420",
+    height = "180",
+    rx = "24",
+    fill = "#111827"
+  ),
+  tags$circle(cx = "90", cy = "70", r = "34", fill = "#38bdf8"),
+  tags$circle(cx = "205", cy = "98", r = "50", fill = "#8b5cf6"),
+  tags$circle(cx = "322", cy = "62", r = "26", fill = "#fb7185")
+)
+```
+
+```{r render-use-svg-component, results = "asis"}
+cat(
+  render(night_sky)
+)
+```
+
+that is the same `...` technique from html components. the component owns the
+outer structure; the caller owns the inner content.
+
+## shape components
+
+we can go one level deeper and make components for the shapes too.
+
+```{r shape-components}
+#' An Orb
+#'
+#' @param cx Number /// Required.
+#'           Horizontal centre.
+#'
+#' @param cy Number /// Required.
+#'           Vertical centre.
+#'
+#' @param r Number /// Required.
+#'          Radius.
+#'
+#' @param fill String /// Optional.
+#'             Fill colour.
+#'
+#' @param opacity Number /// Optional.
+#'                Shape opacity.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+Orb <- function(
+  cx,
+  cy,
+  r,
+  fill = "currentColor",
+  opacity = 1
+) {
+  tags$circle(
+    cx = cx,
+    cy = cy,
+    r = r,
+    fill = fill,
+    opacity = opacity
+  )
+}
+
+#' A Spark
+#'
+#' @param x Number /// Required.
+#'          Horizontal centre.
+#'
+#' @param y Number /// Required.
+#'          Vertical centre.
+#'
+#' @param size Number /// Optional.
+#'             Spark size.
+#'
+#' @param color String /// Optional.
+#'              Stroke colour.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+Spark <- function(
+  x,
+  y,
+  size = 10,
+  color = "#fde68a"
+) {
+  tags$g(
+    stroke = color,
+    `stroke-width` = "3",
+    `stroke-linecap` = "round",
+    tags$line(x1 = x - size, y1 = y, x2 = x + size, y2 = y),
+    tags$line(x1 = x, y1 = y - size, x2 = x, y2 = y + size)
+  )
+}
+```
+
+now a scene is just composition:
+
+```{r render-shape-components, results = "asis"}
+scene <- Svg(
+  width = 520,
+  height = 220,
+  tags$rect(
+    x = "0",
+    y = "0",
+    width = "520",
+    height = "220",
+    rx = "28",
+    fill = "#020617"
+  ),
+  Orb(cx = 115, cy = 112, r = 66, fill = "#22d3ee", opacity = 0.95),
+  Orb(cx = 230, cy = 94, r = 88, fill = "#8b5cf6", opacity = 0.72),
+  Orb(cx = 348, cy = 130, r = 58, fill = "#fb7185", opacity = 0.86),
+  Spark(x = 415, y = 56, size = 13),
+  Spark(x = 78, y = 46, size = 9, color = "#bae6fd"),
+  Spark(x = 460, y = 150, size = 8, color = "#fecdd3")
+)
+
+cat(
+  render(scene)
+)
+```
+
+## defs and gradients
+
+some svg elements define things instead of drawing things immediately.
+`<defs>` is where those definitions live. gradients are the common example:
+define a gradient once, give it an `id`, then reference it with `url(#id)`.
+
+let's make a gradient component.
+
+```{r gradient-component}
+#' A Linear Gradient
+#'
+#' @param id String /// Required.
+#'           Gradient id.
+#'
+#' @param colors Character vector /// Required.
+#'               Colours in the gradient.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+LinearGradient <- function(id, colors) {
+  stops <- lapply(
+    X = seq_along(colors),
+    FUN = function(i) {
+      offset <- if (length(colors) == 1L) {
+        0
+      } else {
+        (i - 1) / (length(colors) - 1) * 100
+      }
+
+      tags$stop(
+        offset = paste0(round(offset), "%"),
+        `stop-color` = colors[[i]]
+      )
+    }
+  )
+
+  tags$linearGradient(
+    id = id,
+    x1 = "0%",
+    y1 = "0%",
+    x2 = "100%",
+    y2 = "100%",
+    stops
+  )
+}
+```
+
+here it is inside a small mark:
+
+```{r render-gradient-component, results = "asis"}
+signal_mark <- Svg(
+  width = 520,
+  height = 220,
+  tags$defs(
+    LinearGradient(
+      id = "aurora",
+      colors = c("#22d3ee", "#8b5cf6", "#fb7185")
+    )
+  ),
+  tags$rect(
+    x = "0",
+    y = "0",
+    width = "520",
+    height = "220",
+    rx = "28",
+    fill = "#020617"
+  ),
+  tags$path(
+    d = "M42 145 C112 35, 188 205, 258 96 S395 28, 478 132",
+    fill = "none",
+    stroke = "url(#aurora)",
+    `stroke-width` = "18",
+    `stroke-linecap` = "round"
+  ),
+  tags$text(
+    x = "42",
+    y = "58",
+    fill = "#f8fafc",
+    `font-size` = "24",
+    `font-family` = "inherit",
+    `font-weight` = "700",
+    "inline svg, built in r"
+  ),
+  tags$text(
+    x = "42",
+    y = "86",
+    fill = "#94a3b8",
+    `font-size` = "14",
+    `font-family` = "inherit",
+    "components, gradients, paths, and text"
+  )
+)
+
+cat(
+  render(signal_mark)
+)
+```
+
+the gradient is not drawn by itself. it becomes useful when another element
+references it. this is the same idea as defining a function and calling it
+later.
+
+## mapping data to svg
+
+svg coordinates are just numbers, so data graphics are normal R programming.
+compute `x`, `y`, `width`, and `height`, then pass those values as attributes.
+
+the only coordinate trick to remember is that svg starts at the top-left. if a
+bar should be taller, its `height` gets bigger but its `y` value gets smaller.
+
+```{r bar-chart-component}
+#' A Bar Chart
+#'
+#' @param values Named numeric vector /// Required.
+#'               Values to plot.
+#'
+#' @param width Number /// Optional.
+#'              SVG width.
+#'
+#' @param height Number /// Optional.
+#'               SVG height.
+#'
+#' @param title String /// Optional.
+#'              Chart title.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+BarChart <- function(
+  values,
+  width = 560,
+  height = 260,
+  title = "signal strength"
+) {
+  labels <- names(values)
+  if (is.null(labels)) {
+    labels <- as.character(seq_along(values))
+  }
+
+  pad_left <- 46
+  pad_right <- 28
+  pad_top <- 62
+  pad_bottom <- 46
+  gap <- 12
+
+  plot_w <- width - pad_left - pad_right
+  plot_h <- height - pad_top - pad_bottom
+  bar_w <- (plot_w - gap * (length(values) - 1)) / length(values)
+  max_value <- max(values)
+  if (max_value == 0) {
+    max_value <- 1
+  }
+
+  bars <- lapply(
+    X = seq_along(values),
+    FUN = function(i) {
+      value <- values[[i]]
+      bar_h <- value / max_value * plot_h
+      bar_x <- pad_left + (i - 1) * (bar_w + gap)
+      bar_y <- pad_top + plot_h - bar_h
+      label_x <- bar_x + bar_w / 2
+
+      tags$g(
+        tags$rect(
+          x = round(bar_x, 1),
+          y = round(bar_y, 1),
+          width = round(bar_w, 1),
+          height = round(bar_h, 1),
+          rx = "10",
+          fill = "url(#bars)",
+          opacity = "0.94"
+        ),
+        tags$text(
+          x = round(label_x, 1),
+          y = round(bar_y - 10, 1),
+          `text-anchor` = "middle",
+          `font-size` = "12",
+          `font-family` = "inherit",
+          `font-weight` = "700",
+          fill = "#f8fafc",
+          round(value, 1)
+        ),
+        tags$text(
+          x = round(label_x, 1),
+          y = height - 18,
+          `text-anchor` = "middle",
+          `font-size` = "12",
+          `font-family` = "inherit",
+          fill = "#cbd5e1",
+          labels[[i]]
+        )
+      )
+    }
+  )
+
+  Svg(
+    width = width,
+    height = height,
+    tags$defs(
+      LinearGradient(
+        id = "bars",
+        colors = c("#22d3ee", "#a78bfa")
+      )
+    ),
+    tags$rect(
+      x = "0",
+      y = "0",
+      width = width,
+      height = height,
+      rx = "28",
+      fill = "#0f172a"
+    ),
+    tags$text(
+      x = "28",
+      y = "36",
+      fill = "#f8fafc",
+      `font-size` = "20",
+      `font-family` = "inherit",
+      `font-weight` = "700",
+      title
+    ),
+    tags$line(
+      x1 = pad_left,
+      y1 = pad_top + plot_h,
+      x2 = width - pad_right,
+      y2 = pad_top + plot_h,
+      stroke = "#334155",
+      `stroke-width` = "2"
+    ),
+    bars
+  )
+}
+```
+
+```{r render-bar-chart, results = "asis"}
+launch_scores <- c(
+  alpha = 42,
+  beta = 68,
+  gamma = 51,
+  delta = 91,
+  omega = 74
+)
+
+chart_a <- BarChart(launch_scores)
+
+cat(
+  render(chart_a)
+)
+```
+
+`lapply()` returns a plain list of `<g>` nodes. because that list is passed
+inside `Svg()`, `hypertext` flattens it into sibling children of the svg.
+
+## same component, real data
+
+now reuse the same chart on a base R dataset. `VADeaths` is a matrix of
+mortality rates per 1000. we'll take the `"Rural Male"` column.
+
+```{r real-data-chart, results = "asis"}
+rural_male <- VADeaths[, "Rural Male"]
+
+chart_b <- BarChart(
+  values = rural_male,
+  width = 620,
+  height = 280,
+  title = "VADeaths: rural male"
+)
+
+cat(
+  render(chart_b)
+)
+```
+
+the chart did not need to know where the data came from. it only needed a
+named numeric vector. that is the sweet spot for components: accept a simple
+input, hide the repetitive markup, return a `hypertext.tag`.
+
+## animation
+
+svg can animate itself. no javascript is needed for simple effects. animation
+tags are children of the element they animate.
+
+```{r animated-signal-component}
+#' An Animated Signal Dot
+#'
+#' @param x Number /// Required.
+#'          Horizontal centre.
+#'
+#' @param y Number /// Required.
+#'          Vertical centre.
+#'
+#' @param color String /// Optional.
+#'              Signal colour.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+SignalDot <- function(
+  x,
+  y,
+  color = "#22d3ee"
+) {
+  tag_list(
+    tags$circle(
+      cx = x,
+      cy = y,
+      r = "10",
+      fill = color,
+      opacity = "0.55",
+      tags$animate(
+        attributeName = "r",
+        values = "10;34",
+        dur = "1.4s",
+        repeatCount = "indefinite"
+      ),
+      tags$animate(
+        attributeName = "opacity",
+        values = "0.55;0",
+        dur = "1.4s",
+        repeatCount = "indefinite"
+      )
+    ),
+    tags$circle(
+      cx = x,
+      cy = y,
+      r = "7",
+      fill = color
+    )
+  )
+}
+```
+
+```{r render-animation, results = "asis"}
+live_signal <- Svg(
+  width = 520,
+  height = 180,
+  tags$rect(
+    x = "0",
+    y = "0",
+    width = "520",
+    height = "180",
+    rx = "28",
+    fill = "#020617"
+  ),
+  tags$text(
+    x = "42",
+    y = "76",
+    fill = "#f8fafc",
+    `font-size` = "28",
+    `font-family` = "inherit",
+    `font-weight` = "700",
+    "live signal"
+  ),
+  tags$text(
+    x = "42",
+    y = "108",
+    fill = "#94a3b8",
+    `font-size` = "15",
+    `font-family` = "inherit",
+    "animated with svg tags, rendered from r"
+  ),
+  SignalDot(x = 440, y = 90)
+)
+
+cat(
+  render(live_signal)
+)
+```
+
+## final composition
+
+let's end by putting the pieces together. the next component returns a small
+metric card: a gradient panel, a data-driven sparkline, and a live status dot.
+
+```{r metric-card}
+#' A Metric Card
+#'
+#' @param label String /// Required.
+#'              Metric label.
+#'
+#' @param value String /// Required.
+#'              Main value to display.
+#'
+#' @param points Numeric vector /// Required.
+#'               Sparkline points.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+MetricCard <- function(label, value, points) {
+  width <- 560
+  height <- 220
+  x_values <- seq(56, 504, length.out = length(points))
+  point_span <- diff(range(points))
+  y_values <- if (point_span == 0) {
+    rep(115, length(points))
+  } else {
+    154 - (points - min(points)) / point_span * 78
+  }
+
+  path_d <- paste(
+    paste0(
+      c(
+        "M",
+        rep(x = "L", times = length(points) - 1)
+      ),
+      round(x_values, 1),
+      " ",
+      round(y_values, 1)
+    ),
+    collapse = " "
+  )
+
+  Svg(
+    width = width,
+    height = height,
+    tags$defs(
+      LinearGradient(
+        id = "metric-bg",
+        colors = c("#0f172a", "#312e81", "#701a75")
+      ),
+      LinearGradient(
+        id = "metric-line",
+        colors = c("#22d3ee", "#f0abfc")
+      )
+    ),
+    tags$rect(
+      x = "0",
+      y = "0",
+      width = width,
+      height = height,
+      rx = "30",
+      fill = "url(#metric-bg)"
+    ),
+    tags$text(
+      x = "36",
+      y = "50",
+      fill = "#cbd5e1",
+      `font-size` = "14",
+      `font-family` = "inherit",
+      `letter-spacing` = "1.6",
+      label
+    ),
+    tags$text(
+      x = "36",
+      y = "94",
+      fill = "#ffffff",
+      `font-size` = "42",
+      `font-family` = "inherit",
+      `font-weight` = "800",
+      value
+    ),
+    tags$path(
+      d = path_d,
+      fill = "none",
+      stroke = "url(#metric-line)",
+      `stroke-width` = "8",
+      `stroke-linecap` = "round",
+      `stroke-linejoin` = "round"
+    ),
+    lapply(
+      X = seq_along(points),
+      FUN = function(i) {
+        Orb(
+          cx = round(x_values[[i]], 1),
+          cy = round(y_values[[i]], 1),
+          r = 4,
+          fill = "#f8fafc",
+          opacity = 0.95
+        )
+      }
+    ),
+    SignalDot(x = 500, y = 50, color = "#f0abfc")
+  )
+}
+```
+
+```{r render-metric-card, results = "asis"}
+metric <- MetricCard(
+  label = "RENDER PIPELINE",
+  value = "98.7%",
+  points = c(28, 35, 31, 48, 44, 62, 58, 79, 86)
+)
+
+cat(
+  render(metric)
+)
+```
+
+the important part is not that this is a charting library. it is not. the
+important part is that `hypertext` gives you the raw building blocks. when you
+need a graphic that is a little too custom for a plotting package, you can
+build it from tags and still keep the code composable.
+
+## conclusion
+
+svg with `hypertext` follows the same rules as html with `hypertext`:
+
+- named arguments become attributes.
+- unnamed arguments become children.
+- components are functions that return `hypertext.tag` objects.
+- `...` lets callers provide unknown children.
+- `lapply()` can turn data into repeated svg nodes.
+- animation, gradients, and paths are just more tags.
+
+if you know how to build components, you already know the shape of the svg
+workflow. the only new thing is the coordinate system.

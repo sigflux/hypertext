@@ -72,8 +72,8 @@ test_that("tags contains common HTML elements", {
   }
 })
 
-test_that("tags has 115 elements", {
-  expect_equal(length(tags), 115)
+test_that("tags has 173 elements", {
+  expect_equal(length(tags), 173)
 })
 
 test_that("void tags produce self-closing HTML", {

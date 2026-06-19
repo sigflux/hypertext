@@ -2,3 +2,7 @@
 ^cran-comments\.md$
 ^\.github$
 ^CRAN-SUBMISSION$
+^docs$
+^pkgdown$
+^_pkgdown.yml$
+^vignettes$

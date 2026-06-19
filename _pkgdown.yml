@@ -1,0 +1,34 @@
+url: https://sigflux.github.io/hypertext/
+
+template:
+  bootstrap: 5
+  light-switch: true
+  bslib:
+    bg: "#fbf7ff"
+    fg: "#17111f"
+    primary: "#7c3aed"
+    border-color: "#eadfff"
+    code-bg: "#111827"
+    code-color: "#e5e7eb"
+    base_font: {google: "Geist"}
+    heading_font: {google: "Geist"}
+    code_font: {google: "Geist Mono"}
+  theme: github-light
+  theme-dark: vim-dark
+
+navbar:
+  structure:
+    left:  [intro, reference, components, svg, news]
+    right: [search, github, lightswitch]
+  components:
+    components:
+      text: components
+      href: articles/components.html
+    svg:
+      text: svg
+      href: articles/svg.html
+
+footer:
+  structure:
+    left: developed_by
+    right: built_with
