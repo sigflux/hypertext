@@ -36,7 +36,7 @@ a really good example here is a button:
 ```{r btn}
 btn <- tags$button(
   type = "button",
-  class = "btn",
+  class = "btn btn-primary",
   "Click Me!"
 )
 ```
@@ -57,7 +57,7 @@ you need to convert it to a component:
 Button <- function() {
   tags$button(
     type = "button",
-    class = "btn",
+    class = "btn btn-primary",
     "Click Me!"
   )
 }
@@ -118,7 +118,10 @@ see how this works? we even added some function docs there. practically,
 you'd call the component like this:
 
 ```{r call-improved-btn-component, results = "asis"}
-btn_a <- Button(label = "Default")
+btn_a <- Button(
+  label = "Are you sure?",
+  class = "btn-warning"
+)
 
 btn_b <- Button(
   label = "Submit",
@@ -154,7 +157,29 @@ cat(
 
 ## composition
 
-say we have this `Badge()` component:
+say we want a `Badge()` component. let's first define some color variants:
+
+```{r badge-variants}
+#' Bootstrap Color Variants
+#'
+#' @return Character vector.
+color_variants <- function() {
+  c(
+    "primary",
+    "secondary",
+    "success",
+    "danger",
+    "warning",
+    "info",
+    "light",
+    "dark"
+  )
+}
+```
+
+these variants map directly to the bootstrap utility classes.
+
+here comes the `Badge()`:
 
 ```{r badge}
 #' A Badge
@@ -163,17 +188,16 @@ say we have this `Badge()` component:
 #'              Label to show on the badge.
 #'
 #' @param variant String /// Optional.
-#'                Utility class. Must be one of:
-#'                - "primary" (default)
-#'                - "success"
-#'                - "danger"
+#'                Color variant of the badge.
+#'                Must be one of `color_variants()`.
+#'                Defaults to the "primary" variant.
 #'
 #' @return `hypertext.tag`
 #'
 #' @export
 Badge <- function(
   label,
-  variant = c("primary", "success", "danger")
+  variant = color_variants() 
 ) {
   variant <- match.arg(arg = variant)
 
@@ -191,9 +215,8 @@ badge_b <- Badge("deprecated", variant = "danger")
 badge_c <- Badge("stable", variant = "success")
 ```
 
-the `variant` argument maps directly to a bootstrap utility class. the
-caller controls the label and colour; the structure is fixed inside the
-function.
+the caller controls the label and colour; the structure is fixed inside
+the function.
 
 ```{r basic-components-badges, results = "asis"}
 cat(
@@ -203,7 +226,7 @@ cat(
 )
 ```
 
-components can call other components.
+components can wrap other components.
 
 an `Alert()` component can embed a `Badge()` for the severity label,
 keeping both independently reusable.
@@ -214,11 +237,10 @@ keeping both independently reusable.
 #' @param message String /// Required.
 #'                Message to show on the alert.
 #'
-#' @param type String /// Optional.
-#'                Alert type. A utility class. Must be one of:
-#'                - "info" (default)
-#'                - "danger"
-#'                - "warning"
+#' @param variant String /// Optional.
+#'                Color variant of the alert.
+#'                Must be one of `color_variants()`.
+#'                Defaults to the "primary" variant.
 #'
 #' @param dismissible String /// Optional.
 #'                 Should the alert be dismissible? Either:
@@ -230,20 +252,21 @@ keeping both independently reusable.
 #' @export
 Alert <- function(
   message,
-  type = c("info", "danger", "warning"),
+  variant = color_variants(),
   dismissible = c("no", "yes")
 ) {
-  type <- match.arg(arg = type)
+  variant <- match.arg(arg = variant)
   dismissible <- match.arg(arg = dismissible)
 
-  label <- switch(
-    EXPR = type,
-    info = Badge(label = "info", variant = "success"),
-    warning = Badge(label = "warning", variant = "primary"),
-    danger = Badge(label = "danger", variant = "danger")
+  severity_label <- Badge(
+    label = variant,
+    variant = variant
   )
 
-  classes <- c("alert", paste0("alert-", type))
+  classes <- c(
+    "alert",
+    paste0("alert-", variant)
+  )
   dismiss_btn <- NULL
   if (dismissible == "yes") {
     classes <- c(
@@ -260,9 +283,9 @@ Alert <- function(
   }
 
   tags$div(
-    class = classes,
     role = "alert",
-    label,
+    class = classes,
+    severity_label,
     " ",
     message,
     dismiss_btn
@@ -271,25 +294,36 @@ Alert <- function(
 
 alert_a <- Alert(
   message = "Your session will expire in 5 minutes.",
-  type = "warning"
+  variant = "warning"
 )
 
 alert_b <- Alert(
-  message = "Record deleted successfully.",
-  type = "danger"
+  message = "An error while processing your request.",
+  variant = "danger"
 )
 
 alert_c <- Alert(
   message = "This is some info you need to know.",
+  variant = "info",
+  dismissible = "yes"
+)
+
+alert_d <- Alert(
+  message = "Report rendered successfully.",
+  variant = "success",
   dismissible = "yes"
 )
 ```
+
+again, depending on your styling and the classes you apply, those
+might look like this in your app:
 
 ```{r composition-alerts, results = "asis"}
 cat(
   render(alert_a),
   render(alert_b),
-  render(alert_c)
+  render(alert_c),
+  render(alert_d)
 )
 ```
 

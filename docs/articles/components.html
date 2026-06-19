@@ -90,7 +90,7 @@ structure, exposing only the parts that change as arguments.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">btn</span> <span class="op">&lt;-</span> <span class="va">tags</span><span class="op">$</span><span class="fu">button</span><span class="op">(</span></span>
 <span>  type <span class="op">=</span> <span class="st">"button"</span>,</span>
-<span>  class <span class="op">=</span> <span class="st">"btn"</span>,</span>
+<span>  class <span class="op">=</span> <span class="st">"btn btn-primary"</span>,</span>
 <span>  <span class="st">"Click Me!"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>in your app and depending on your styling, this snippet might look
@@ -99,7 +99,7 @@ like this:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">btn</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<button type="button" class="btn">
+<button type="button" class="btn btn-primary">
 Click Me!
 </button>
 <p>if you want to re-use this snippet in other parts of your app, you
@@ -108,7 +108,7 @@ need to convert it to a component:</p>
 <code class="sourceCode R"><span><span class="va">Button</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">tags</span><span class="op">$</span><span class="fu">button</span><span class="op">(</span></span>
 <span>    type <span class="op">=</span> <span class="st">"button"</span>,</span>
-<span>    class <span class="op">=</span> <span class="st">"btn"</span>,</span>
+<span>    class <span class="op">=</span> <span class="st">"btn btn-primary"</span>,</span>
 <span>    <span class="st">"Click Me!"</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span>
@@ -116,7 +116,7 @@ need to convert it to a component:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="fu">Button</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<button type="button" class="btn">
+<button type="button" class="btn btn-primary">
 Click Me!
 </button>
 <p>that’d be the default button rendered. but sometimes, you need to
@@ -176,7 +176,10 @@ label.</li>
 <p>see how this works? we even added some function docs there.
 practically, you’d call the component like this:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">btn_a</span> <span class="op">&lt;-</span> <span class="fu">Button</span><span class="op">(</span>label <span class="op">=</span> <span class="st">"Default"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">btn_a</span> <span class="op">&lt;-</span> <span class="fu">Button</span><span class="op">(</span></span>
+<span>  label <span class="op">=</span> <span class="st">"Are you sure?"</span>,</span>
+<span>  class <span class="op">=</span> <span class="st">"btn-warning"</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">btn_b</span> <span class="op">&lt;-</span> <span class="fu">Button</span><span class="op">(</span></span>
 <span>  label <span class="op">=</span> <span class="st">"Submit"</span>,</span>
@@ -205,8 +208,8 @@ practically, you’d call the component like this:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">my_btns</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<button type="button" class="btn">
-Default
+<button type="button" class="btn btn-warning">
+Are you sure?
 </button>
 <button type="submit" class="btn btn-primary">
 Submit
@@ -221,25 +224,43 @@ Delete
 <div class="section level2">
 <h2 id="composition">composition<a class="anchor" aria-label="anchor" href="#composition"></a>
 </h2>
-<p>say we have this <code>Badge()</code> component:</p>
+<p>say we want a <code>Badge()</code> component. let’s first define some
+color variants:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#' Bootstrap Color Variants</span></span>
+<span><span class="co">#'</span></span>
+<span><span class="co">#' @return Character vector.</span></span>
+<span><span class="va">color_variants</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"primary"</span>,</span>
+<span>    <span class="st">"secondary"</span>,</span>
+<span>    <span class="st">"success"</span>,</span>
+<span>    <span class="st">"danger"</span>,</span>
+<span>    <span class="st">"warning"</span>,</span>
+<span>    <span class="st">"info"</span>,</span>
+<span>    <span class="st">"light"</span>,</span>
+<span>    <span class="st">"dark"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>these variants map directly to the bootstrap utility classes.</p>
+<p>here comes the <code>Badge()</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' A Badge</span></span>
 <span><span class="co">#'</span></span>
 <span><span class="co">#' @param label String /// Required.</span></span>
 <span><span class="co">#'              Label to show on the badge.</span></span>
 <span><span class="co">#'</span></span>
 <span><span class="co">#' @param variant String /// Optional.</span></span>
-<span><span class="co">#'                Utility class. Must be one of:</span></span>
-<span><span class="co">#'                - "primary" (default)</span></span>
-<span><span class="co">#'                - "success"</span></span>
-<span><span class="co">#'                - "danger"</span></span>
+<span><span class="co">#'                Color variant of the badge.</span></span>
+<span><span class="co">#'                Must be one of `color_variants()`.</span></span>
+<span><span class="co">#'                Defaults to the "primary" variant.</span></span>
 <span><span class="co">#'</span></span>
 <span><span class="co">#' @return `hypertext.tag`</span></span>
 <span><span class="co">#'</span></span>
 <span><span class="co">#' @export</span></span>
 <span><span class="va">Badge</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
 <span>  <span class="va">label</span>,</span>
-<span>  <span class="va">variant</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"primary"</span>, <span class="st">"success"</span>, <span class="st">"danger"</span><span class="op">)</span></span>
+<span>  <span class="va">variant</span> <span class="op">=</span> <span class="fu">color_variants</span><span class="op">(</span><span class="op">)</span> </span>
 <span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">variant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg</a></span><span class="op">(</span>arg <span class="op">=</span> <span class="va">variant</span><span class="op">)</span></span>
 <span></span>
@@ -255,30 +276,28 @@ Delete
 <span><span class="va">badge_a</span> <span class="op">&lt;-</span> <span class="fu">Badge</span><span class="op">(</span><span class="st">"new"</span><span class="op">)</span></span>
 <span><span class="va">badge_b</span> <span class="op">&lt;-</span> <span class="fu">Badge</span><span class="op">(</span><span class="st">"deprecated"</span>, variant <span class="op">=</span> <span class="st">"danger"</span><span class="op">)</span></span>
 <span><span class="va">badge_c</span> <span class="op">&lt;-</span> <span class="fu">Badge</span><span class="op">(</span><span class="st">"stable"</span>, variant <span class="op">=</span> <span class="st">"success"</span><span class="op">)</span></span></code></pre></div>
-<p>the <code>variant</code> argument maps directly to a bootstrap
-utility class. the caller controls the label and colour; the structure
-is fixed inside the function.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>the caller controls the label and colour; the structure is fixed
+inside the function.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">badge_a</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">badge_b</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">badge_c</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><span class="badge text-bg-primary">new</span> <span class="badge text-bg-danger">deprecated</span> <span class="badge text-bg-success">stable</span></p>
-<p>components can call other components.</p>
+<p>components can wrap other components.</p>
 <p>an <code>Alert()</code> component can embed a <code>Badge()</code>
 for the severity label, keeping both independently reusable.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' An Alert</span></span>
 <span><span class="co">#'</span></span>
 <span><span class="co">#' @param message String /// Required.</span></span>
 <span><span class="co">#'                Message to show on the alert.</span></span>
 <span><span class="co">#'</span></span>
-<span><span class="co">#' @param type String /// Optional.</span></span>
-<span><span class="co">#'                Alert type. A utility class. Must be one of:</span></span>
-<span><span class="co">#'                - "info" (default)</span></span>
-<span><span class="co">#'                - "danger"</span></span>
-<span><span class="co">#'                - "warning"</span></span>
+<span><span class="co">#' @param variant String /// Optional.</span></span>
+<span><span class="co">#'                Color variant of the alert.</span></span>
+<span><span class="co">#'                Must be one of `color_variants()`.</span></span>
+<span><span class="co">#'                Defaults to the "primary" variant.</span></span>
 <span><span class="co">#'</span></span>
 <span><span class="co">#' @param dismissible String /// Optional.</span></span>
 <span><span class="co">#'                 Should the alert be dismissible? Either:</span></span>
@@ -290,20 +309,21 @@ for the severity label, keeping both independently reusable.</p>
 <span><span class="co">#' @export</span></span>
 <span><span class="va">Alert</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
 <span>  <span class="va">message</span>,</span>
-<span>  <span class="va">type</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"info"</span>, <span class="st">"danger"</span>, <span class="st">"warning"</span><span class="op">)</span>,</span>
+<span>  <span class="va">variant</span> <span class="op">=</span> <span class="fu">color_variants</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">dismissible</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"no"</span>, <span class="st">"yes"</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">type</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg</a></span><span class="op">(</span>arg <span class="op">=</span> <span class="va">type</span><span class="op">)</span></span>
+<span>  <span class="va">variant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg</a></span><span class="op">(</span>arg <span class="op">=</span> <span class="va">variant</span><span class="op">)</span></span>
 <span>  <span class="va">dismissible</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg</a></span><span class="op">(</span>arg <span class="op">=</span> <span class="va">dismissible</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="va">label</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span></span>
-<span>    EXPR <span class="op">=</span> <span class="va">type</span>,</span>
-<span>    info <span class="op">=</span> <span class="fu">Badge</span><span class="op">(</span>label <span class="op">=</span> <span class="st">"info"</span>, variant <span class="op">=</span> <span class="st">"success"</span><span class="op">)</span>,</span>
-<span>    warning <span class="op">=</span> <span class="fu">Badge</span><span class="op">(</span>label <span class="op">=</span> <span class="st">"warning"</span>, variant <span class="op">=</span> <span class="st">"primary"</span><span class="op">)</span>,</span>
-<span>    danger <span class="op">=</span> <span class="fu">Badge</span><span class="op">(</span>label <span class="op">=</span> <span class="st">"danger"</span>, variant <span class="op">=</span> <span class="st">"danger"</span><span class="op">)</span></span>
+<span>  <span class="va">severity_label</span> <span class="op">&lt;-</span> <span class="fu">Badge</span><span class="op">(</span></span>
+<span>    label <span class="op">=</span> <span class="va">variant</span>,</span>
+<span>    variant <span class="op">=</span> <span class="va">variant</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span>  <span class="va">classes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"alert"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"alert-"</span>, <span class="va">type</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">classes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"alert"</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"alert-"</span>, <span class="va">variant</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span>  <span class="va">dismiss_btn</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">dismissible</span> <span class="op">==</span> <span class="st">"yes"</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">classes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -320,9 +340,9 @@ for the severity label, keeping both independently reusable.</p>
 <span>  <span class="op">}</span></span>
 <span></span>
 <span>  <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
-<span>    class <span class="op">=</span> <span class="va">classes</span>,</span>
 <span>    role <span class="op">=</span> <span class="st">"alert"</span>,</span>
-<span>    <span class="va">label</span>,</span>
+<span>    class <span class="op">=</span> <span class="va">classes</span>,</span>
+<span>    <span class="va">severity_label</span>,</span>
 <span>    <span class="st">" "</span>,</span>
 <span>    <span class="va">message</span>,</span>
 <span>    <span class="va">dismiss_btn</span></span>
@@ -331,36 +351,50 @@ for the severity label, keeping both independently reusable.</p>
 <span></span>
 <span><span class="va">alert_a</span> <span class="op">&lt;-</span> <span class="fu">Alert</span><span class="op">(</span></span>
 <span>  message <span class="op">=</span> <span class="st">"Your session will expire in 5 minutes."</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"warning"</span></span>
+<span>  variant <span class="op">=</span> <span class="st">"warning"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">alert_b</span> <span class="op">&lt;-</span> <span class="fu">Alert</span><span class="op">(</span></span>
-<span>  message <span class="op">=</span> <span class="st">"Record deleted successfully."</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"danger"</span></span>
+<span>  message <span class="op">=</span> <span class="st">"An error while processing your request."</span>,</span>
+<span>  variant <span class="op">=</span> <span class="st">"danger"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">alert_c</span> <span class="op">&lt;-</span> <span class="fu">Alert</span><span class="op">(</span></span>
 <span>  message <span class="op">=</span> <span class="st">"This is some info you need to know."</span>,</span>
+<span>  variant <span class="op">=</span> <span class="st">"info"</span>,</span>
+<span>  dismissible <span class="op">=</span> <span class="st">"yes"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">alert_d</span> <span class="op">&lt;-</span> <span class="fu">Alert</span><span class="op">(</span></span>
+<span>  message <span class="op">=</span> <span class="st">"Report rendered successfully."</span>,</span>
+<span>  variant <span class="op">=</span> <span class="st">"success"</span>,</span>
 <span>  dismissible <span class="op">=</span> <span class="st">"yes"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<p>again, depending on your styling and the classes you apply, those
+might look like this in your app:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">alert_a</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">alert_b</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">alert_c</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">alert_c</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">alert_d</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="alert alert-warning" role="alert">
-<span class="badge text-bg-primary">warning</span> Your session will
+<span class="badge text-bg-warning">warning</span> Your session will
 expire in 5 minutes.
 </div>
 <div class="alert alert-danger" role="alert">
-<span class="badge text-bg-danger">danger</span> Record deleted
-successfully.
+<span class="badge text-bg-danger">danger</span> An error while
+processing your request.
 </div>
 <div class="alert alert-info alert-dismissible fade show" role="alert">
-<span class="badge text-bg-success">info</span> This is some info you
-need to
+<span class="badge text-bg-info">info</span> This is some info you need
+to
 know.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+<span class="badge text-bg-success">success</span> Report rendered
+successfully.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 </div>
 <div class="section level2">
@@ -370,7 +404,7 @@ know.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label=
 <code><a href="../reference/render.html">render()</a></code> drops <code>NULL</code> values silently, so you
 can conditionally include children without special-casing the rendering
 logic.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">card</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
 <span>  <span class="va">title</span>,</span>
 <span>  <span class="va">body</span>,</span>
@@ -409,7 +443,7 @@ logic.</p>
 <span>  body <span class="op">=</span> <span class="st">"Some body text."</span>,</span>
 <span>  footer <span class="op">=</span> <span class="st">"Last updated: today"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
 <span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">card_a</span><span class="op">)</span>,</span>
 <span><span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">card_b</span><span class="op">)</span></span>
@@ -454,7 +488,7 @@ a tag. that’s where the dots (<code>...</code>) come in.</p>
 plain lists of children automatically. This means you can map over a
 vector to produce a list of child nodes without any extra
 unwrapping.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nav_bar</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">links</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># links: named character vector, names = labels, values = hrefs</span></span>
 <span>  <span class="va">items</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
@@ -486,7 +520,7 @@ unwrapping.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">my_nav</span> <span class="op">&lt;-</span> <span class="fu">nav_bar</span><span class="op">(</span><span class="va">site_links</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">my_nav</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -508,7 +542,7 @@ unwrapping.</p>
 <p>Putting it together: a <code>profile_card()</code> component that
 combines an image, a heading, a paragraph, and the <code>Badge()</code>
 component from earlier.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">profile_card</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">name</span>, <span class="va">role</span>, <span class="va">bio</span>, <span class="va">avatar_url</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
 <span>    class <span class="op">=</span> <span class="st">"card"</span>,</span>
@@ -536,7 +570,7 @@ component from earlier.</p>
 <span>  <span class="op">)</span>,</span>
 <span>  avatar_url <span class="op">=</span> <span class="st">"https://example.com/ada.jpg"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/render.html">render</a></span><span class="op">(</span><span class="va">my_profile</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
