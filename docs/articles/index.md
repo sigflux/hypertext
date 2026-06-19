@@ -8,8 +8,8 @@
   how to wrap hypertext tags into reusable R functions, conditional
   children and composition.
 
-- [SVG with
+- [svg with
   hypertext](https://sigflux.github.io/hypertext/articles/svg.md):
 
-  Build SVG graphics programmatically in R — shapes, gradients, a bar
-  chart from real data, and animation.
+  how to build inline svg with hypertext tags, reusable svg components,
+  gradients, data, and animation.

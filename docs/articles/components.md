@@ -5,38 +5,169 @@ library(hypertext)
 ```
 
 the core idea in hypertext is simple: tag functions are just R
-functions, and R functions compose naturally. no need for a framework or
-a special component system — a component is just a function that returns
-a `hypertext.tag`.
+functions, and R functions compose naturally. a component is just a
+function that returns a `hypertext.tag`.
+
+with `hypertext`, you can use any css framework of your choice. but for
+the examples that follow we’ll use bootstrap classes for demo purposes
+and because this site is built using `pkgdown` which uses bootstrap by
+default.
 
 ## basic component
 
 the simplest component is a function that wraps a tag with a fixed
 structure, exposing only the parts that change as arguments.
 
+a really good example here is a button:
+
 ``` r
-#' A Badge
+btn <- tags$button(
+  type = "button",
+  class = "btn btn-primary",
+  "Click Me!"
+)
+```
+
+in your app and depending on your styling, this snippet might look like
+this:
+
+``` r
+cat(
+  render(btn)
+)
+```
+
+Click Me!
+
+if you want to re-use this snippet in other parts of your app, you need
+to convert it to a component:
+
+``` r
+Button <- function() {
+  tags$button(
+    type = "button",
+    class = "btn btn-primary",
+    "Click Me!"
+  )
+}
+
+cat(
+  render(Button())
+)
+```
+
+Click Me!
+
+that’d be the default button rendered. but sometimes, you need to tweak
+the button a little bit. so let’s identify the moving parts:
+
+- `type`: As per [mdn
+  docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#type),
+  the type can either be:
+  - “submit”: the button submits form data to the server.
+  - “reset”: the button resets all the controls to their initial values.
+  - “button”: the button has no default behaviour, and does nothing when
+    pressed by default.
+- `class`: we’d need to pass more \[custom\] classes to our button.
+  these extra classes would dictate it’s styling and behaviour when
+  clicked.
+- `label`: each button in our app probably has a different label.
+
+with that, let’s now improve the `Button()` component:
+
+``` r
+#' A Button
 #'
 #' @param label String /// Required.
-#'              Label to show on the badge.
+#'              The button label.
 #'
-#' @param variant String /// Optional.
-#'                Utility class. Must be one of:
-#'                - "primary" (default)
-#'                - "secondary"
-#'                - "success"
-#'                - "danger"
-#'                - "warning"
-#'                - "info"
-#'                - "light"
-#'                - "dark"
+#' @param type String /// Optional.
+#'             Button type. Either:
+#'             - "button" (default)
+#'             - "submit"
+#'             - "reset"
+#'
+#' @param class Character vector /// Optional.
+#'              CSS classes to apply to the button.
 #'
 #' @return `hypertext.tag`
 #'
 #' @export
-badge <- function(
+Button <- function(
   label,
-  variant = c(
+  type = c("button", "submit", "reset"),
+  class = NULL
+) {
+  type <- match.arg(arg = type)
+
+  tags$button(
+    type = type,
+    class = c("btn", class),
+    label
+  )
+}
+```
+
+see how this works? we even added some function docs there. practically,
+you’d call the component like this:
+
+``` r
+btn_a <- Button(
+  label = "Are you sure?",
+  class = "btn-warning"
+)
+
+btn_b <- Button(
+  label = "Submit",
+  type = "submit",
+  class = "btn-primary"
+)
+
+btn_c <- Button(
+  label = "Confirm",
+  class = "btn-success"
+)
+
+btn_d <- Button(
+  label = "Delete",
+  class = "btn-danger"
+)
+```
+
+and this how those would look:
+
+``` r
+my_btns <- tag_list(
+  btn_a,
+  btn_b,
+  btn_c,
+  btn_d
+)
+
+cat(
+  render(my_btns)
+)
+```
+
+Are you sure?
+
+Submit
+
+Confirm
+
+Delete
+
+## composition
+
+say we want a `Badge()` component. let’s first define some color
+variants:
+
+``` r
+#' Bootstrap Color Variants
+#'
+#' @return Character vector.
+color_variants <- function() {
+  c(
     "primary",
     "secondary",
     "success",
@@ -46,6 +177,30 @@ badge <- function(
     "light",
     "dark"
   )
+}
+```
+
+these variants map directly to the bootstrap utility classes.
+
+here comes the `Badge()`:
+
+``` r
+#' A Badge
+#'
+#' @param label String /// Required.
+#'              Label to show on the badge.
+#'
+#' @param variant String /// Optional.
+#'                Color variant of the badge.
+#'                Must be one of `color_variants()`.
+#'                Defaults to the "primary" variant.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+Badge <- function(
+  label,
+  variant = color_variants() 
 ) {
   variant <- match.arg(arg = variant)
 
@@ -58,10 +213,13 @@ badge <- function(
   )
 }
 
-badge_a <- badge("new")
-badge_b <- badge("deprecated", variant = "danger")
-badge_c <- badge("stable", variant = "success")
+badge_a <- Badge("new")
+badge_b <- Badge("deprecated", variant = "danger")
+badge_c <- Badge("stable", variant = "success")
 ```
+
+the caller controls the label and colour; the structure is fixed inside
+the function.
 
 ``` r
 cat(
@@ -73,15 +231,9 @@ cat(
 
 new deprecated stable
 
-the `variant` argument maps directly to a bootstrap utility class. the
-caller controls the label and colour; the structure is fixed inside the
-function.
+components can wrap other components.
 
-## composition
-
-components can call other components.
-
-an `alert()` component can embed a `badge()` for the severity label,
+an `Alert()` component can embed a `Badge()` for the severity label,
 keeping both independently reusable.
 
 ``` r
@@ -90,267 +242,264 @@ keeping both independently reusable.
 #' @param message String /// Required.
 #'                Message to show on the alert.
 #'
-#' @param type String /// Optional.
-#'                Alert type. A utility class. Must be one of:
-#'                - "info" (default)
-#'                - "danger"
-#'                - "warning"
+#' @param variant String /// Optional.
+#'                Color variant of the alert.
+#'                Must be one of `color_variants()`.
+#'                Defaults to the "primary" variant.
 #'
-#' @param dismissable String /// Optional.
-#'                 Should the alert be dismissable? Either:
+#' @param dismissible String /// Optional.
+#'                 Should the alert be dismissible? Either:
 #'                 - "no" (default)
 #'                 - "yes"
 #'
 #' @return `hypertext.tag`
 #'
 #' @export
-alert <- function(
+Alert <- function(
   message,
-  type = c("info", "danger", "warning"),
-  dismissable = c("no", "yes")
+  variant = color_variants(),
+  dismissible = c("no", "yes")
 ) {
-  type <- match.arg(arg = type)
-  dismissable <- match.arg(arg = dismissable)
+  variant <- match.arg(arg = variant)
+  dismissible <- match.arg(arg = dismissible)
 
-  alert_classes <- c("alert", paste0("alert-", type))
-  if (dismissable == "yes") {
-    alert_classes <- c(
-      alert_classes,
+  severity_label <- Badge(
+    label = variant,
+    variant = variant
+  )
+
+  classes <- c(
+    "alert",
+    paste0("alert-", variant)
+  )
+  dismiss_btn <- NULL
+  if (dismissible == "yes") {
+    classes <- c(
+      classes,
       "alert-dismissible fade show"
+    )
+
+    dismiss_btn <- tags$button(
+      type = "button",
+      class = "btn-close",
+      `data-bs-dismiss` = "alert",
+      `aria-label` = "Close"
     )
   }
 
-  label <- switch(
-    type,
-    info = badge(label = "info", variant = "primary"),
-    warning = badge(label = "warning", variant = "warning"),
-    danger = badge(label = "danger", variant = "danger"),
-    badge(label = type)
-  )
-
   tags$div(
-    class = alert_classes,
     role = "alert",
-    label,
+    class = classes,
+    severity_label,
     " ",
-    message
+    message,
+    dismiss_btn
   )
 }
 
-alert_a <- alert(
+alert_a <- Alert(
   message = "Your session will expire in 5 minutes.",
-  type = "warning"
+  variant = "warning"
 )
 
-alert_b <- alert(
-  message = "Record deleted successfully.",
-  type = "danger"
+alert_b <- Alert(
+  message = "An error while processing your request.",
+  variant = "danger"
 )
 
-alert_c <- alert(
+alert_c <- Alert(
   message = "This is some info you need to know.",
-  dismissable = "yes"
+  variant = "info",
+  dismissible = "yes"
+)
+
+alert_d <- Alert(
+  message = "Report rendered successfully.",
+  variant = "success",
+  dismissible = "yes"
 )
 ```
+
+again, depending on your styling and the classes you apply, those might
+look like this in your app:
 
 ``` r
 cat(
   render(alert_a),
   render(alert_b),
-  render(alert_c)
+  render(alert_c),
+  render(alert_d)
 )
 ```
 
 warning Your session will expire in 5 minutes.
 
-danger Record deleted successfully.
+danger An error while processing your request.
 
 info This is some info you need to know.
 
-## Conditional children
+success Report rendered successfully.
 
-Use `NULL` as a sentinel for optional children.
-[`render()`](https://sigflux.github.io/hypertext/reference/render.md)
-drops `NULL` values silently, so you can conditionally include children
-without special-casing the rendering logic.
+in that `Alert()` example, `dismiss_btn` is a conditional child, that’s
+why we set it to `NULL` by default. `hypertext` tags drop all `NULL`
+children and properties.
+
+## ellipsis
+
+sometimes, you need to pass an unknown number of tags as children to a
+tag. that’s where the dots (`...`) come in.
+
+the dots are useful when the component owns the outer structure, but the
+caller owns the inner content.
+
+let’s make a `Card()` component. the header structure is fixed, but the
+body can contain any number of children.
 
 ``` r
-card <- function(
+#' A Card
+#'
+#' @param title String /// Required.
+#'              Title to show in the card header.
+#'
+#' @param ... Tags, text, or other renderable objects /// Optional.
+#'            Body content for the card.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+Card <- function(
   title,
-  body,
-  footer = NULL
+  ...
 ) {
   tags$div(
-    class = "card",
+    class = "card my-2",
     tags$div(
       class = "card-header",
       tags$strong(title)
     ),
     tags$div(
       class = "card-body",
-      tags$p(
-        class = "card-text",
-        body
-      )
-    ),
-    if (!is.null(footer)) {
-      tags$div(
-        class = "card-footer text-muted",
-        footer
-      )
-    }
-  )
-}
-
-# without footer
-card_a <- card(
-  title = "Title A",
-  body = "Some body text."
-)
-# with footer
-card_b <- card(
-  title = "Title B",
-  body = "Some body text.",
-  footer = "Last updated: today"
-)
-
-render(card_a)
-#> [1] "<div class=\"card\"><div class=\"card-header\"><strong>Title A</strong></div><div class=\"card-body\"><p class=\"card-text\">Some body text.</p></div></div>"
-render(card_b)
-#> [1] "<div class=\"card\"><div class=\"card-header\"><strong>Title B</strong></div><div class=\"card-body\"><p class=\"card-text\">Some body text.</p></div><div class=\"card-footer text-muted\">Last updated: today</div></div>"
-```
-
-``` r
-cat(
-render(card_a),
-render(card_b)
-)
-```
-
-**Title A**
-
-Some body text.
-
-**Title B**
-
-Some body text.
-
-Last updated: today
-
-When `footer` is `NULL` the `if` expression evaluates to `NULL`, which
-hypertext simply ignores. No conditional rendering plumbing needed.
-
-## List children
-
-[`lapply()`](https://rdrr.io/r/base/lapply.html) returns a plain list,
-and hypertext flattens plain lists of children automatically. This means
-you can map over a vector to produce a list of child nodes without any
-extra unwrapping.
-
-``` r
-nav_bar <- function(links) {
-  # links: named character vector, names = labels, values = hrefs
-  items <- lapply(
-    X = names(links),
-    FUN = function(label) {
-      tags$li(
-        class = "nav-item",
-        tags$a(
-          class = "nav-link",
-          href = links[[label]],
-          label
-        )
-      )
-    }
-  )
-
-  tags$nav(
-    tags$ul(
-      class = "nav",
-      items
+      ...
     )
   )
 }
 
-site_links <- c(
-  "Home" = "/",
-  "Reference" = "/reference/",
-  "Articles" = "/articles/"
-)
-
-my_nav <- nav_bar(site_links)
-```
-
-``` r
-cat(
-  render(my_nav)
-)
-```
-
-- [Home](https://sigflux.github.io/)
-- [Reference](https://sigflux.github.io/reference/)
-- [Articles](https://sigflux.github.io/articles/)
-
-## Worked example — profile card
-
-Putting it together: a `profile_card()` component that combines an
-image, a heading, a paragraph, and the `badge()` component from earlier.
-
-``` r
-profile_card <- function(name, role, bio, avatar_url) {
-  tags$div(
-    class = "card",
-    style = "max-width: 320px;",
-    tags$img(
-      src = avatar_url,
-      class = "card-img-top",
-      alt = paste("Photo of", name)
-    ),
-    tags$div(
-      class = "card-body",
-      tags$h5(class = "card-title", name),
-      badge(role, variant = "secondary"),
-      tags$p(class = "card-text mt-2", bio)
-    )
+card_a <- Card(
+  title = "Report status",
+  tags$p(
+    class = "card-text",
+    "The report rendered successfully."
   )
-}
+)
 
-my_profile <- profile_card(
-  name = "Ada Lovelace",
-  role = "mathematician",
-  bio = paste(
-    "First to recognise that a computing machine had",
-    "applications beyond pure calculation."
+card_b <- Card(
+  title = "Package status",
+  tags$p(
+    class = "card-text",
+    "Current release channel: ",
+    Badge("stable", variant = "success")
   ),
-  avatar_url = "https://example.com/ada.jpg"
+  Button(
+    label = "View details",
+    class = "btn-sm btn-primary"
+  )
 )
+```
+
+and here’s how those might look:
+
+``` r
+cards <- tag_list(
+  card_a,
+  card_b
+)
+
+cat(
+  render(cards)
+)
+```
+
+**Report status**
+
+The report rendered successfully.
+
+**Package status**
+
+Current release channel: stable
+
+View details
+
+inside `Card()`, the `...` are forwarded into
+`tags$div(class = "card-body")`. that means each call site can decide
+whether the body is plain text, a paragraph, a badge, a button, or a mix
+of all of them.
+
+## mapping over items
+
+you can map over items and return `hypertext.tag` objects. to do the
+mapping, use list-returning R functions eg.
+[`lapply()`](https://rdrr.io/r/base/lapply.html),
+[`Map()`](https://rdrr.io/r/base/funprog.html), etc. plain lists
+returned by these functions are flattened automatically when passed as
+children to a tag.
+
+here’s a `ListGroup()` component that maps a character vector to `<li>`
+children:
+
+``` r
+#' A List Group
+#'
+#' @param items Character vector /// Required.
+#'              Items to show in the list group.
+#'
+#' @return `hypertext.tag`
+#'
+#' @export
+ListGroup <- function(items) {
+  tags$ul(
+    class = "list-group list-group-numbered my-2",
+    lapply(
+      X = items,
+      FUN = function(item) {
+        tags$li(
+          class = "list-group-item",
+          item
+        )
+      }
+    )
+  )
+}
+
+todos <- c(
+  "Write the component",
+  "Render it",
+  "Reuse it"
+)
+
+todo_list <- ListGroup(todos)
 ```
 
 ``` r
 cat(
-  render(my_profile)
+  render(todo_list)
 )
 ```
 
-![Photo of Ada Lovelace](https://example.com/ada.jpg)
+- Write the component
+- Render it
+- Reuse it
 
-##### Ada Lovelace
+[`lapply()`](https://rdrr.io/r/base/lapply.html) returns a plain list of
+`tags$li()` nodes. because that list is passed inside `tags$ul()`,
+`hypertext` treats each item as a child of the `<ul>`.
 
-mathematician
+use
+[`tag_list()`](https://sigflux.github.io/hypertext/reference/tag_list.md)
+when you want to group sibling nodes without adding a parent element.
+use a plain mapped list when those sibling nodes already have a parent
+tag, like the `<ul>` above.
 
-First to recognise that a computing machine had applications beyond pure
-calculation.
+## conclusion
 
-## Summary
-
-| Pattern | How |
-|----|----|
-| Fixed structure, variable content | Function argument → attribute or child |
-| Optional children | Default to `NULL`; `if (!is.null(x))` guard |
-| Composition | Call one component function inside another |
-| Lists of children | [`lapply()`](https://rdrr.io/r/base/lapply.html) → plain list → auto-flattened |
-| Reuse across pages | Source the file or put components in a package |
-
-A component library for a real project is just a collection of these
-functions. There is no registration, no lifecycle, no virtual DOM — just
-R functions that return tag objects.
+components are functions that return `hypertext.tag` objects. you can
+bake styling (css) and behaviour (js) into them, and they’re composable.
