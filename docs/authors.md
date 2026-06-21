@@ -13,12 +13,12 @@ Source:
 [`DESCRIPTION`](https://github.com/sigflux/hypertext/blob/HEAD/DESCRIPTION)
 
 Mwavu K (2026). *hypertext: 'HTML' Element Construction*. R package
-version 1.2.0, <https://sigflux.github.io/hypertext/>.
+version 1.3.0, <https://sigflux.github.io/hypertext/>.
 
     @Manual{,
       title = {hypertext: 'HTML' Element Construction},
       author = {Kennedy Mwavu},
       year = {2026},
-      note = {R package version 1.2.0},
+      note = {R package version 1.3.0},
       url = {https://sigflux.github.io/hypertext/},
     }

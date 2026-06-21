@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">hypertext</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,8 +65,11 @@
 <!-- badges: end -->
 <p>html element construction for R.</p>
 <p><code>hypertext</code> provides a deterministic, framework-agnostic DSL for building html nodes and rendering them to a string.</p>
-<p>it does <strong>not</strong> implement templating, dependency management, widgets or framework integrations.</p>
-<p>heavily inspired by <a href="https://github.com/rstudio/htmltools" class="external-link">{htmltools}</a>.</p>
+<ul>
+<li>heavily inspired by <a href="https://github.com/rstudio/htmltools" class="external-link">{htmltools}</a>.</li>
+<li>does <strong>not</strong> implement templating, dependency management, or widgets/framework integrations.</li>
+<li>dependency-free. zero package imports. lightweight is the right weight, as suggested in the <a href="https://www.tinyverse.org/" class="external-link">tinyverse</a> philosophy.</li>
+</ul>
 <div class="section level2">
 <h2 id="installation">installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>

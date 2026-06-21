@@ -55,7 +55,11 @@ body {
 
 a {
   color: var(--hyper-primary);
-  text-decoration-color: color-mix(in srgb, var(--hyper-primary) 32%, transparent);
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--hyper-primary) 32%,
+    transparent
+  );
   text-decoration-thickness: 0.08em;
   text-underline-offset: 0.18em;
 }
@@ -125,7 +129,8 @@ h2::before {
 
 .navbar {
   background: rgba(var(--hyper-surface-rgb), 0.92);
-  border-bottom: 1px solid color-mix(in srgb, var(--hyper-border) 82%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--hyper-border) 82%, transparent);
   box-shadow: 0 8px 22px rgba(88, 28, 135, 0.05);
   backdrop-filter: blur(12px);
 }
@@ -193,7 +198,11 @@ small code,
 a code {
   padding: 0.14rem 0.36rem;
   color: color-mix(in srgb, var(--hyper-primary) 74%, var(--hyper-rose));
-  background: color-mix(in srgb, var(--hyper-primary) 10%, var(--hyper-surface));
+  background: color-mix(
+    in srgb,
+    var(--hyper-primary) 10%,
+    var(--hyper-surface)
+  );
   border: 1px solid color-mix(in srgb, var(--hyper-primary) 17%, transparent);
   border-radius: 0.5rem;
 }
@@ -324,7 +333,11 @@ table {
 thead,
 thead tr,
 thead th {
-  background: color-mix(in srgb, var(--hyper-primary) 10%, var(--hyper-surface));
+  background: color-mix(
+    in srgb,
+    var(--hyper-primary) 10%,
+    var(--hyper-surface)
+  );
 }
 
 td,
