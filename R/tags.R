@@ -52,24 +52,6 @@
   out
 }
 
-# -- void (self-closing) elements ------------------------------------
-.void_elements <- c(
-  "area",
-  "base",
-  "br",
-  "col",
-  "embed",
-  "hr",
-  "img",
-  "input",
-  "link",
-  "meta",
-  "param",
-  "source",
-  "track",
-  "wbr"
-)
-
 # -- html escaping ---------------------------------------------------
 
 #' Escape special HTML characters
@@ -415,7 +397,7 @@ render.hypertext.tag <- function(
   ...
 ) {
   attr_str <- .render_attrs(x$attrs)
-  is_void <- identical(x$tag_type, "void") || x$tag %in% .void_elements
+  is_void <- identical(x$tag_type, "void")
 
   if (is_void) {
     html <- paste0("<", x$tag, attr_str, " />")
