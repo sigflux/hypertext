@@ -49,6 +49,50 @@ test_that("print.hypertext.tag pretty prints mixed text and nested children", {
   )
 })
 
+test_that("print.hypertext.tag pretty prints custom tag trees", {
+  page <- tags$div(
+    class = "app",
+    tag(
+      tag_name = "calcite-shell",
+      tag(
+        tag_name = "calcite-shell-panel",
+        slot = "panel-start",
+        tag(
+          tag_name = "calcite-action-bar",
+          tag(
+            tag_name = "calcite-action",
+            text = "Layers",
+            icon = "layers"
+          ),
+          tag(
+            tag_name = "calcite-action",
+            text = "Basemaps",
+            icon = "basemap"
+          )
+        )
+      ),
+      tags$div(id = "map")
+    )
+  )
+
+  expect_equal(
+    capture.output(print(page)),
+    c(
+      "<div class=\"app\">",
+      "  <calcite-shell>",
+      "    <calcite-shell-panel slot=\"panel-start\">",
+      "      <calcite-action-bar>",
+      "        <calcite-action text=\"Layers\" icon=\"layers\"></calcite-action>",
+      "        <calcite-action text=\"Basemaps\" icon=\"basemap\"></calcite-action>",
+      "      </calcite-action-bar>",
+      "    </calcite-shell-panel>",
+      "    <div id=\"map\"></div>",
+      "  </calcite-shell>",
+      "</div>"
+    )
+  )
+})
+
 test_that("print.hypertext.tag returns the node invisibly", {
   node <- tags$div("test")
   result <- withVisible(print(node))
