@@ -35,7 +35,7 @@ List of class `"hypertext.tag"` with components `tag`, `attrs`,
 ``` r
 # web component
 tag(tag_name = "calcite-action-bar", layout = "horizontal")
-#> <calcite-action-bar layout="horizontal"></calcite-action-bar> 
+#> <calcite-action-bar layout="horizontal"></calcite-action-bar>
 
 # custom element with children
 tag(
@@ -44,9 +44,12 @@ tag(
   tag(tag_name = "my-card-header", "Title"),
   tag(tag_name = "my-card-body", "Content")
 )
-#> <my-card class="shadow"><my-card-header>Title</my-card-header><my-card-body>Content</my-card-body></my-card> 
+#> <my-card class="shadow">
+#>   <my-card-header>Title</my-card-header>
+#>   <my-card-body>Content</my-card-body>
+#> </my-card>
 
 # custom void element
 tag(tag_name = "my-icon", name = "home", tag_type = "void")
-#> <my-icon name="home" /> 
+#> <my-icon name="home" />
 ```

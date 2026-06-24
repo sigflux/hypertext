@@ -30,7 +30,7 @@ be entity-escaped.
 
 ``` r
 raw_html("<script>alert('hi')</script>")
-#> <script>alert('hi')</script> 
+#> <script>alert('hi')</script>
 render(tags$div(raw_html("<em>already formatted</em>")))
 #> [1] "<div><em>already formatted</em></div>"
 ```
