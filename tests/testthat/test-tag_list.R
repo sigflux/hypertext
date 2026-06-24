@@ -101,9 +101,33 @@ test_that("render handles nested tag_list", {
 
 # -- print.hypertext.tag.list ----------------------------------------------
 
-test_that("print.hypertext.tag.list outputs rendered HTML with newline", {
+test_that("print.hypertext.tag.list pretty prints sibling tags", {
   tl <- tag_list(tags$p("a"), tags$p("b"))
-  expect_output(print(tl), "<p>a</p><p>b</p>")
+  expect_equal(
+    capture.output(print(tl)),
+    c("<p>a</p>", "<p>b</p>")
+  )
+})
+
+test_that("print.hypertext.tag.list pretty prints full documents", {
+  tl <- tag_list(
+    doctype(),
+    tags$html(
+      tags$body(tags$h1("Hello"))
+    )
+  )
+
+  expect_equal(
+    capture.output(print(tl)),
+    c(
+      "<!DOCTYPE html>",
+      "<html>",
+      "  <body>",
+      "    <h1>Hello</h1>",
+      "  </body>",
+      "</html>"
+    )
+  )
 })
 
 test_that("print.hypertext.tag.list returns invisibly", {

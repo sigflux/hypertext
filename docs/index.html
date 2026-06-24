@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">hypertext</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,9 +84,7 @@
 <h2 id="quick-start">quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sigflux.github.io/hypertext/">hypertext</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">page</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tag_list.html">tag_list</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">page</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tag_list.html">tag_list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="reference/doctype.html">doctype</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">tags</span><span class="op">$</span><span class="fu">html</span><span class="op">(</span></span>
 <span>    <span class="va">tags</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span></span>
@@ -109,7 +107,19 @@
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/render.html">render</a></span><span class="op">(</span><span class="va">page</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">page</span></span>
+<span><span class="co">#&gt; &lt;!DOCTYPE html&gt;</span></span>
+<span><span class="co">#&gt; &lt;html&gt;</span></span>
+<span><span class="co">#&gt;   &lt;head&gt;</span></span>
+<span><span class="co">#&gt;     &lt;title&gt;hypertext&lt;/title&gt;</span></span>
+<span><span class="co">#&gt;   &lt;/head&gt;</span></span>
+<span><span class="co">#&gt;   &lt;body&gt;</span></span>
+<span><span class="co">#&gt;     &lt;h1&gt;Hello&lt;/h1&gt;</span></span>
+<span><span class="co">#&gt;     &lt;p class="lead mb-2"&gt;Server-side HTML.&lt;/p&gt;</span></span>
+<span><span class="co">#&gt;     &lt;input type="text" placeholder="enter your nickname" /&gt;</span></span>
+<span><span class="co">#&gt;     &lt;button&gt;Click&lt;/button&gt;</span></span>
+<span><span class="co">#&gt;   &lt;/body&gt;</span></span>
+<span><span class="co">#&gt; &lt;/html&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="rendering">rendering<a class="anchor" aria-label="anchor" href="#rendering"></a>
@@ -124,15 +134,15 @@
 <span><span class="co"># `x` contains the tag tree</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "hypertext.tag"</span></span>
+<span><span class="va">x</span></span>
+<span><span class="co">#&gt; &lt;p class="lead"&gt;hello&lt;/p&gt;</span></span>
 <span></span>
 <span><span class="co"># rendering produces an HTML string:</span></span>
 <span><span class="fu"><a href="reference/render.html">render</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "&lt;p class=\"lead\"&gt;hello&lt;/p&gt;"</span></span></code></pre></div>
 <p>you can <code><a href="reference/render.html">render()</a></code> directly to an html file by supplying the <code>file</code> parameter:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sigflux.github.io/hypertext/">hypertext</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">page</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tag_list.html">tag_list</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">page</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tag_list.html">tag_list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="reference/doctype.html">doctype</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">tags</span><span class="op">$</span><span class="fu">html</span><span class="op">(</span></span>
 <span>    <span class="va">tags</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span></span>
@@ -162,9 +172,7 @@
 </h2>
 <p><code><a href="reference/tag_list.html">tag_list()</a></code> groups sibling nodes without wrapping them in a parent element.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sigflux.github.io/hypertext/">hypertext</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">header</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tag_list.html">tag_list</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">header</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tag_list.html">tag_list</a></span><span class="op">(</span></span>
 <span>  <span class="va">tags</span><span class="op">$</span><span class="fu">h1</span><span class="op">(</span><span class="st">"hello"</span><span class="op">)</span>,</span>
 <span>  <span class="va">tags</span><span class="op">$</span><span class="fu">p</span><span class="op">(</span></span>
 <span>    class <span class="op">=</span> <span class="st">"lead"</span>,</span>
@@ -172,22 +180,23 @@
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/render.html">render</a></span><span class="op">(</span><span class="va">header</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "&lt;h1&gt;hello&lt;/h1&gt;&lt;p class=\"lead\"&gt;welcome aboard.&lt;/p&gt;"</span></span></code></pre></div>
+<span><span class="co"># `header` is a "hypertext.tag.list" object:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">header</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "hypertext.tag.list" "list"</span></span>
+<span></span>
+<span><span class="va">header</span></span>
+<span><span class="co">#&gt; &lt;h1&gt;hello&lt;/h1&gt;</span></span>
+<span><span class="co">#&gt; &lt;p class="lead"&gt;welcome aboard.&lt;/p&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="raw-html">raw html<a class="anchor" aria-label="anchor" href="#raw-html"></a>
 </h2>
 <p><code><a href="reference/raw_html.html">raw_html()</a></code> marks a string as pre-rendered HTML so that <code><a href="reference/render.html">render()</a></code> outputs it verbatim, without escaping. useful for injecting inline scripts, styles, SVG markup, or any content that is already valid HTML.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sigflux.github.io/hypertext/">hypertext</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">page</span> <span class="op">&lt;-</span> <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="reference/raw_html.html">raw_html</a></span><span class="op">(</span><span class="st">"&lt;svg viewBox='0 0 100 100'&gt;&lt;circle cx='50' cy='50' r='40'/&gt;&lt;/svg&gt;"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/render.html">render</a></span><span class="op">(</span><span class="va">page</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "&lt;div&gt;&lt;svg viewBox='0 0 100 100'&gt;&lt;circle cx='50' cy='50' r='40'/&gt;&lt;/svg&gt;&lt;/div&gt;"</span></span></code></pre></div>
+<span><span class="co">#&gt; &lt;div&gt;&lt;svg viewBox='0 0 100 100'&gt;&lt;circle cx='50' cy='50' r='40'/&gt;&lt;/svg&gt;&lt;/div&gt;</span></span></code></pre></div>
 <p><code><a href="reference/doctype.html">doctype()</a></code> is a convenience wrapper around <code>raw_html("&lt;!DOCTYPE html&gt;")</code>.</p>
 </div>
 <div class="section level2">
@@ -203,15 +212,13 @@
 <code>tag_type</code>: either “normal” (default) for the standard html elements, or “void” for the self-closing elements.</li>
 </ul>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sigflux.github.io/hypertext/">hypertext</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">content</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tag.html">tag</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">content</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tag.html">tag</a></span><span class="op">(</span></span>
 <span>  tag_name <span class="op">=</span> <span class="st">"calcite-action-bar"</span>,</span>
 <span>  layout <span class="op">=</span> <span class="st">"horizontal"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/render.html">render</a></span><span class="op">(</span><span class="va">content</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "&lt;calcite-action-bar layout=\"horizontal\"&gt;&lt;/calcite-action-bar&gt;"</span></span></code></pre></div>
+<span><span class="va">content</span></span>
+<span><span class="co">#&gt; &lt;calcite-action-bar layout="horizontal"&gt;&lt;/calcite-action-bar&gt;</span></span></code></pre></div>
 <p>nest them freely with each other and with built-in tags:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">page</span> <span class="op">&lt;-</span> <span class="va">tags</span><span class="op">$</span><span class="fu">div</span><span class="op">(</span></span>
@@ -239,7 +246,18 @@
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/render.html">render</a></span><span class="op">(</span><span class="va">page</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">page</span></span>
+<span><span class="co">#&gt; &lt;div class="app"&gt;</span></span>
+<span><span class="co">#&gt;   &lt;calcite-shell&gt;</span></span>
+<span><span class="co">#&gt;     &lt;calcite-shell-panel slot="panel-start"&gt;</span></span>
+<span><span class="co">#&gt;       &lt;calcite-action-bar&gt;</span></span>
+<span><span class="co">#&gt;         &lt;calcite-action text="Layers" icon="layers"&gt;&lt;/calcite-action&gt;</span></span>
+<span><span class="co">#&gt;         &lt;calcite-action text="Basemaps" icon="basemap"&gt;&lt;/calcite-action&gt;</span></span>
+<span><span class="co">#&gt;       &lt;/calcite-action-bar&gt;</span></span>
+<span><span class="co">#&gt;     &lt;/calcite-shell-panel&gt;</span></span>
+<span><span class="co">#&gt;     &lt;div id="map"&gt;&lt;/div&gt;</span></span>
+<span><span class="co">#&gt;   &lt;/calcite-shell&gt;</span></span>
+<span><span class="co">#&gt; &lt;/div&gt;</span></span></code></pre></div>
 <p>for self-closing elements, set <code>tag_type = "void"</code>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">content</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tag.html">tag</a></span><span class="op">(</span></span>
@@ -248,8 +266,8 @@
 <span>  tag_type <span class="op">=</span> <span class="st">"void"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/render.html">render</a></span><span class="op">(</span><span class="va">content</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "&lt;my-icon name=\"home\" /&gt;"</span></span></code></pre></div>
+<span><span class="va">content</span></span>
+<span><span class="co">#&gt; &lt;my-icon name="home" /&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage-in-frameworks">usage in frameworks<a class="anchor" aria-label="anchor" href="#usage-in-frameworks"></a>

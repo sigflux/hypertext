@@ -52,24 +52,6 @@
   out
 }
 
-# -- void (self-closing) elements ------------------------------------
-.void_elements <- c(
-  "area",
-  "base",
-  "br",
-  "col",
-  "embed",
-  "hr",
-  "img",
-  "input",
-  "link",
-  "meta",
-  "param",
-  "source",
-  "track",
-  "wbr"
-)
-
 # -- html escaping ---------------------------------------------------
 
 #' Escape special HTML characters
@@ -415,7 +397,7 @@ render.hypertext.tag <- function(
   ...
 ) {
   attr_str <- .render_attrs(x$attrs)
-  is_void <- identical(x$tag_type, "void") || x$tag %in% .void_elements
+  is_void <- identical(x$tag_type, "void")
 
   if (is_void) {
     html <- paste0("<", x$tag, attr_str, " />")
@@ -487,12 +469,118 @@ render.list <- function(
 
 # -- print method ----------------------------------------------------
 
+.html_indent <- function(
+  level,
+  indent
+) {
+  paste(
+    rep(x = " ", times = level * indent),
+    collapse = ""
+  )
+}
+
+.format_html <- function(
+  x,
+  level = 0L,
+  indent = 2L
+) {
+  pad <- .html_indent(level = level, indent = indent)
+
+  if (inherits(x, "hypertext.raw")) {
+    return(
+      paste0(pad, as.character(x))
+    )
+  }
+
+  if (!inherits(x, "hypertext.tag")) {
+    if (inherits(x, "hypertext.tag.list") || is.list(x)) {
+      parts <- vapply(
+        X = x,
+        FUN = .format_html,
+        FUN.VALUE = character(1L),
+        level = level,
+        indent = indent
+      )
+
+      return(
+        paste(parts, collapse = "\n")
+      )
+    }
+
+    return(
+      paste0(
+        pad,
+        .escape_html(as.character(x))
+      )
+    )
+  }
+
+  attr_str <- .render_attrs(x$attrs)
+  is_void <- identical(x$tag_type, "void")
+
+  if (is_void) {
+    return(
+      paste0(pad, "<", x$tag, attr_str, " />")
+    )
+  }
+
+  opening <- paste0(pad, "<", x$tag, attr_str, ">")
+  closing <- paste0("</", x$tag, ">")
+
+  if (length(x$children) == 0L) {
+    return(
+      paste0(opening, closing)
+    )
+  }
+
+  has_nested_children <- vapply(
+    X = x$children,
+    FUN = inherits,
+    FUN.VALUE = logical(1L),
+    what = c("hypertext.tag", "hypertext.tag.list")
+  ) |>
+    any() |>
+    isTRUE()
+
+  if (!has_nested_children) {
+    inner <- paste(
+      vapply(
+        X = x$children,
+        FUN = render,
+        FUN.VALUE = character(1L)
+      ),
+      collapse = ""
+    )
+
+    return(
+      paste0(opening, inner, "</", x$tag, ">")
+    )
+  }
+
+  closing <- paste0(pad, closing)
+
+  children <- vapply(
+    X = x$children,
+    FUN = .format_html,
+    FUN.VALUE = character(1L),
+    level = level + 1L,
+    indent = indent
+  )
+
+  paste(c(opening, children, closing), collapse = "\n")
+}
+
 #' @export
 print.hypertext.tag <- function(
   x,
   ...
 ) {
-  cat(render(x), "\n")
+  cat(
+    .format_html(x),
+    "\n",
+    sep = ""
+  )
+
   invisible(x)
 }
 

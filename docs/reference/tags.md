@@ -30,7 +30,7 @@ Character vectors of length \> 1 are collapsed with a space, so
 
 ``` r
 tags$p(class = "lead", "Hello, world!")
-#> <p class="lead">Hello, world!</p> 
+#> <p class="lead">Hello, world!</p>
 render(tags$div(id = "app", tags$h1("Title")))
 #> [1] "<div id=\"app\"><h1>Title</h1></div>"
 ```

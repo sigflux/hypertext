@@ -30,8 +30,6 @@ devtools::install_github("sigflux/hypertext")
 ## quick start
 
 ``` r
-library(hypertext)
-
 page <- tag_list(
   doctype(),
   tags$html(
@@ -55,7 +53,19 @@ page <- tag_list(
   )
 )
 
-render(page)
+page
+#> <!DOCTYPE html>
+#> <html>
+#>   <head>
+#>     <title>hypertext</title>
+#>   </head>
+#>   <body>
+#>     <h1>Hello</h1>
+#>     <p class="lead mb-2">Server-side HTML.</p>
+#>     <input type="text" placeholder="enter your nickname" />
+#>     <button>Click</button>
+#>   </body>
+#> </html>
 ```
 
 ## rendering
@@ -72,6 +82,8 @@ x <- tags$p(
 # `x` contains the tag tree
 class(x)
 #> [1] "hypertext.tag"
+x
+#> <p class="lead">hello</p>
 
 # rendering produces an HTML string:
 render(x)
@@ -83,8 +95,6 @@ you can
 directly to an html file by supplying the `file` parameter:
 
 ``` r
-library(hypertext)
-
 page <- tag_list(
   doctype(),
   tags$html(
@@ -117,8 +127,6 @@ render(x = page, file = "index.html")
 groups sibling nodes without wrapping them in a parent element.
 
 ``` r
-library(hypertext)
-
 header <- tag_list(
   tags$h1("hello"),
   tags$p(
@@ -127,8 +135,13 @@ header <- tag_list(
   )
 )
 
-render(header)
-#> [1] "<h1>hello</h1><p class=\"lead\">welcome aboard.</p>"
+# `header` is a "hypertext.tag.list" object:
+class(header)
+#> [1] "hypertext.tag.list" "list"
+
+header
+#> <h1>hello</h1>
+#> <p class="lead">welcome aboard.</p>
 ```
 
 ## raw html
@@ -140,14 +153,10 @@ outputs it verbatim, without escaping. useful for injecting inline
 scripts, styles, SVG markup, or any content that is already valid HTML.
 
 ``` r
-library(hypertext)
-
-page <- tags$div(
+tags$div(
   raw_html("<svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='40'/></svg>")
 )
-
-render(page)
-#> [1] "<div><svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='40'/></svg></div>"
+#> <div><svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='40'/></svg></div>
 ```
 
 [`doctype()`](https://sigflux.github.io/hypertext/reference/doctype.md)
@@ -165,15 +174,13 @@ not in the built-in `tags` list. it takes 3 arguments:
   or “void” for the self-closing elements.
 
 ``` r
-library(hypertext)
-
 content <- tag(
   tag_name = "calcite-action-bar",
   layout = "horizontal"
 )
 
-render(content)
-#> [1] "<calcite-action-bar layout=\"horizontal\"></calcite-action-bar>"
+content
+#> <calcite-action-bar layout="horizontal"></calcite-action-bar>
 ```
 
 nest them freely with each other and with built-in tags:
@@ -204,7 +211,18 @@ page <- tags$div(
   )
 )
 
-render(page)
+page
+#> <div class="app">
+#>   <calcite-shell>
+#>     <calcite-shell-panel slot="panel-start">
+#>       <calcite-action-bar>
+#>         <calcite-action text="Layers" icon="layers"></calcite-action>
+#>         <calcite-action text="Basemaps" icon="basemap"></calcite-action>
+#>       </calcite-action-bar>
+#>     </calcite-shell-panel>
+#>     <div id="map"></div>
+#>   </calcite-shell>
+#> </div>
 ```
 
 for self-closing elements, set `tag_type = "void"`:
@@ -216,8 +234,8 @@ content <- tag(
   tag_type = "void"
 )
 
-render(content)
-#> [1] "<my-icon name=\"home\" />"
+content
+#> <my-icon name="home" />
 ```
 
 ## usage in frameworks
