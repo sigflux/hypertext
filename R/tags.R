@@ -533,14 +533,16 @@ render.list <- function(
     )
   }
 
-  has_nested_children <- vapply(
-    X = x$children,
-    FUN = inherits,
-    FUN.VALUE = logical(1L),
-    what = c("hypertext.tag", "hypertext.tag.list")
-  ) |>
-    any() |>
-    isTRUE()
+  has_nested_children <- isTRUE(
+    any(
+      vapply(
+        X = x$children,
+        FUN = inherits,
+        FUN.VALUE = logical(1L),
+        what = c("hypertext.tag", "hypertext.tag.list")
+      )
+    )
+  )
 
   if (!has_nested_children) {
     inner <- paste(
