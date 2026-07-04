@@ -11,9 +11,9 @@ html element construction for R.
 
 `hypertext` provides a deterministic, framework-agnostic DSL for building html nodes and rendering them to a string.
 
-- heavily inspired by [{htmltools}](https://github.com/rstudio/htmltools).
-- does **not** implement templating, dependency management, or widgets/framework integrations.
 - dependency-free. zero package imports. lightweight is the right weight, as suggested in the [tinyverse](https://www.tinyverse.org/) philosophy.
+- does **not** implement templating, dependency management, or widgets/framework integrations.
+- heavily inspired by [{htmltools}](https://github.com/rstudio/htmltools).
 
 ## installation
 
@@ -230,94 +230,98 @@ content
 
 ## usage in frameworks
 
-- [ambiorix](https://ambiorix.dev/) is the perfect example of a web framework where you will find {hypertext} useful:
+### ambiorix
 
-  ``` r
-  library(ambiorix)
-  library(hypertext)
+[ambiorix](https://ambiorix.dev/) is the perfect example of a web framework where you will find {hypertext} useful:
 
-  app <- Ambiorix$new(port = 3000L)
+``` r
+library(ambiorix)
+library(hypertext)
 
-  app$get("/", function(req, res) {
-    html <- tags$h1("hello, world!") |>
-      render()
+app <- Ambiorix$new(port = 3000L)
 
-    res$send(html)
-  })
+app$get("/", function(req, res) {
+  html <- tags$h1("hello, world!") |>
+    render()
 
-  app$get("/about", function(req, res) {
-    html <- tag_list(
-      tags$h1("about us"),
-      tags$p(
-        "minimal ",
-        tags$strong("html construction"),
-        " for R."
-      )
-    ) |>
-      render()
+  res$send(html)
+})
 
-    res$send(html)
-  })
-
-  app$get("/team", function(req, res) {
-    teammates <- c("you", "me", "other")
-
-    html <- tags$div(
-      class = "team",
-      tags$p("meet the team:"),
-      tags$ul(
-        lapply(teammates, tags$li)
-      )
-    ) |>
-      render()
-
-    res$send(html)
-  })
-
-  app$start()
-  ```
-
-- [shiny](https://shiny.posit.co/) already has {htmltools} tags internally, so you do not need {hypertext} in your shiny apps, but in case you do:
-
-  ``` r
-  library(shiny)
-  library(bslib)
-  library(hypertext)
-
-  # use `hypertext::tags` explicitly to avoid clashing with `shiny::tags`.
-  ht <- hypertext::tags
-
-  card <- function(title, body) {
-    ht$div(
-      class = "card mt-3",
-      ht$div(
-        class = "card-header",
-        title
-      ),
-      ht$div(
-        class = "card-body",
-        ht$p(
-          class = "card-text",
-          body
-        )
-      )
+app$get("/about", function(req, res) {
+  html <- tag_list(
+    tags$h1("about us"),
+    tags$p(
+      "minimal ",
+      tags$strong("html construction"),
+      " for R."
     )
-  }
-
-  content <- ht$div(
-    class = "container py-4",
-    card("First card", "Some quick example text."),
-    card("Second card", "Another body of text.")
   ) |>
     render()
 
-  ui <- page(
-    theme = bs_theme(version = 5L),
-    # hypertext renders an HTML string, so wrap in shiny::HTML()
-    HTML(content)
+  res$send(html)
+})
+
+app$get("/team", function(req, res) {
+  teammates <- c("you", "me", "other")
+
+  html <- tags$div(
+    class = "team",
+    tags$p("meet the team:"),
+    tags$ul(
+      lapply(teammates, tags$li)
+    )
+  ) |>
+    render()
+
+  res$send(html)
+})
+
+app$start()
+```
+
+### shiny
+
+[shiny](https://shiny.posit.co/) already has {htmltools} tags internally, so you do not need {hypertext} in your shiny apps, but in case you do:
+
+``` r
+library(shiny)
+library(bslib)
+library(hypertext)
+
+# use `hypertext::tags` explicitly to avoid clashing with `shiny::tags`.
+ht <- hypertext::tags
+
+card <- function(title, body) {
+  ht$div(
+    class = "card mt-3",
+    ht$div(
+      class = "card-header",
+      title
+    ),
+    ht$div(
+      class = "card-body",
+      ht$p(
+        class = "card-text",
+        body
+      )
+    )
   )
+}
 
-  server <- function(input, output, session) {}
+content <- ht$div(
+  class = "container py-4",
+  card("First card", "Some quick example text."),
+  card("Second card", "Another body of text.")
+) |>
+  render()
 
-  shinyApp(ui, server)
-  ```
+ui <- page(
+  theme = bs_theme(version = 5L),
+  # hypertext renders an HTML string, so wrap in shiny::HTML()
+  HTML(content)
+)
+
+server <- function(input, output, session) {}
+
+shinyApp(ui, server)
+```
