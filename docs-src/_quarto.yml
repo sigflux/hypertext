@@ -1,8 +1,6 @@
 project:
   type: website
   output-dir: ../docs
-  resources:
-    - .nojekyll
 
 website:
   title: hypertext
@@ -10,8 +8,6 @@ website:
   repo-url: https://github.com/sigflux/hypertext
   navbar:
     left:
-      - text: reference
-        href: reference/index.qmd
       - text: components
         href: articles/components.qmd
       - text: svg
@@ -23,3 +19,4 @@ website:
 format:
   html:
     toc: true
+    css: assets/styles.css

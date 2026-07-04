@@ -45,3 +45,6 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 dev.R
+
+/.quarto/
+**/*.quarto_ipynb

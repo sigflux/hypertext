@@ -1,9 +1,10 @@
-
 # hypertext
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/sigflux/hypertext/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/sigflux/hypertext/actions/workflows/R-CMD-check.yaml) [![CRAN status](https://www.r-pkg.org/badges/version/hypertext)](https://CRAN.R-project.org/package=hypertext) [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![R-CMD-check](https://github.com/sigflux/hypertext/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/sigflux/hypertext/actions/workflows/R-CMD-check.yaml)
+[![CRAN status](https://img.shields.io/cran/v/hypertext.svg)](https://CRAN.R-project.org/package=hypertext)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 
 <!-- badges: end -->
 
@@ -19,19 +20,19 @@ html element construction for R.
 
 install the stable version from CRAN:
 
-``` r
+```r
 install.packages("hypertext")
 ```
 
 or get the development version from github:
 
-``` r
+```r
 devtools::install_github("sigflux/hypertext")
 ```
 
 ## quick start
 
-``` r
+```r
 page <- tag_list(
   doctype(),
   tags$html(
@@ -74,7 +75,7 @@ page
 
 `render()` takes a tag tree and returns a single HTML string:
 
-``` r
+```r
 x <- tags$p(
   class = "lead",
   "hello"
@@ -93,7 +94,7 @@ render(x)
 
 you can `render()` directly to an html file by supplying the `file` parameter:
 
-``` r
+```r
 page <- tag_list(
   doctype(),
   tags$html(
@@ -124,7 +125,7 @@ render(x = page, file = "index.html")
 
 `tag_list()` groups sibling nodes without wrapping them in a parent element.
 
-``` r
+```r
 header <- tag_list(
   tags$h1("hello"),
   tags$p(
@@ -146,7 +147,7 @@ header
 
 `raw_html()` marks a string as pre-rendered HTML so that `render()` outputs it verbatim, without escaping. useful for injecting inline scripts, styles, SVG markup, or any content that is already valid HTML.
 
-``` r
+```r
 tags$div(
   raw_html("<svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='40'/></svg>")
 )
@@ -163,7 +164,7 @@ tags$div(
 - `...`: attributes (named) & children (unnamed).
 - `tag_type`: either "normal" (default) for the standard html elements, or "void" for the self-closing elements.
 
-``` r
+```r
 content <- tag(
   tag_name = "calcite-action-bar",
   layout = "horizontal"
@@ -175,7 +176,7 @@ content
 
 nest them freely with each other and with built-in tags:
 
-``` r
+```r
 page <- tags$div(
   class = "app",
   tag(
@@ -217,7 +218,7 @@ page
 
 for self-closing elements, set `tag_type = "void"`:
 
-``` r
+```r
 content <- tag(
   tag_name = "my-icon",
   name = "home",
@@ -234,7 +235,7 @@ content
 
 [ambiorix](https://ambiorix.dev/) is the perfect example of a web framework where you will find {hypertext} useful:
 
-``` r
+```r
 library(ambiorix)
 library(hypertext)
 
@@ -283,7 +284,7 @@ app$start()
 
 [shiny](https://shiny.posit.co/) already has {htmltools} tags internally, so you do not need {hypertext} in your shiny apps, but in case you do:
 
-``` r
+```r
 library(shiny)
 library(bslib)
 library(hypertext)
