@@ -1,0 +1,12 @@
+---
+title: reference
+---
+
+## core
+
+- [`tag()`](tag.qmd): create an HTML element node.
+- [`tags`](tags.qmd): HTML and SVG tag functions.
+- [`tag_list()`](tag_list.qmd): create a sibling container.
+- [`render()`](render.qmd): render an HTML node tree to a character string.
+- [`raw_html()`](raw_html.qmd): mark a string as raw HTML.
+- [`doctype()`](doctype.qmd): render the `<!DOCTYPE html>` declaration.

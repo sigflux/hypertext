@@ -1,0 +1,61 @@
+---
+title: render
+---
+
+## render an HTML node tree to a character string
+
+Converts a `hypertext.tag` object and all its descendants into an HTML string. Text children are escaped; nested `hypertext.tag` children are rendered recursively.
+
+```r
+render(x, ...)
+render(x, file = "", write_mode = c("overwrite", "append"), ...)
+```
+
+## arguments
+
+`x`
+
+: `hypertext.tag` object, a string, or a list of these /// Required.
+
+`...`
+
+: Further arguments passed from or to other methods.
+
+`file`
+
+: String /// Optional. Path to file to print to.
+
+`write_mode`
+
+: String /// Optional. Either `"overwrite"` (default), which overwrites the contents of `file`, or `"append"`, which appends the HTML string to `file`.
+
+## value
+
+A single character string of HTML.
+
+## details
+
+When `file` is provided, the rendered HTML is written to the specified file via `cat()` and the HTML string is returned invisibly.
+
+## examples
+
+```{r}
+library(hypertext)
+
+page <- tags$html(
+  tags$head(
+    tags$title("Home")
+  ),
+  tags$body(
+    tags$h1("Welcome")
+  )
+)
+
+# return HTML as a string:
+render(page)
+```
+
+```{r eval=FALSE}
+# write to a file:
+render(page, file = "index.html")
+```

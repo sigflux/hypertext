@@ -1,0 +1,25 @@
+project:
+  type: website
+  output-dir: ../docs
+  resources:
+    - .nojekyll
+
+website:
+  title: hypertext
+  site-url: https://sigflux.github.io/hypertext/
+  repo-url: https://github.com/sigflux/hypertext
+  navbar:
+    left:
+      - text: reference
+        href: reference/index.qmd
+      - text: components
+        href: articles/components.qmd
+      - text: svg
+        href: articles/svg.qmd
+    right:
+      - icon: github
+        href: https://github.com/sigflux/hypertext
+
+format:
+  html:
+    toc: true

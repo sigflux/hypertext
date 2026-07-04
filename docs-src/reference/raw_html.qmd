@@ -1,0 +1,34 @@
+---
+title: raw_html
+---
+
+## mark a string as raw HTML
+
+Wraps one or more character strings so that `render()` outputs them verbatim, **without** escaping HTML special characters.
+
+```r
+raw_html(...)
+```
+
+## arguments
+
+`...`
+
+: Character strings of raw HTML /// Optional.
+
+## value
+
+A character vector of class `"hypertext.raw"`.
+
+## details
+
+This is useful for injecting pre-rendered HTML, inline `<script>`/`<style>` blocks, SVG markup, or any content that should not be entity-escaped.
+
+## examples
+
+```{r}
+library(hypertext)
+
+raw_html("<script>alert('hi')</script>")
+render(tags$div(raw_html("<em>already formatted</em>")))
+```

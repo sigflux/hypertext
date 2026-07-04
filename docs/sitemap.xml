@@ -1,18 +1,43 @@
-<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
-<url><loc>https://sigflux.github.io/hypertext/404.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/LICENSE-text.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/LICENSE.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/articles/components.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/articles/index.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/articles/svg.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/authors.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/index.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/reference/doctype.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/reference/index.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/reference/raw_html.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/reference/render.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/reference/tag.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/reference/tag_list.html</loc></url>
-<url><loc>https://sigflux.github.io/hypertext/reference/tags.html</loc></url>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://sigflux.github.io/hypertext/index.html</loc>
+    <lastmod>2026-07-04T18:55:15.813Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sigflux.github.io/hypertext/reference/doctype.html</loc>
+    <lastmod>2026-07-04T18:55:32.649Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sigflux.github.io/hypertext/reference/render.html</loc>
+    <lastmod>2026-07-04T18:55:32.649Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sigflux.github.io/hypertext/reference/tag.html</loc>
+    <lastmod>2026-07-04T18:55:32.643Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sigflux.github.io/hypertext/articles/svg.html</loc>
+    <lastmod>2026-07-04T18:55:03.792Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sigflux.github.io/hypertext/articles/components.html</loc>
+    <lastmod>2026-07-04T18:55:15.813Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sigflux.github.io/hypertext/reference/index.html</loc>
+    <lastmod>2026-07-04T18:55:32.640Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sigflux.github.io/hypertext/reference/tag_list.html</loc>
+    <lastmod>2026-07-04T18:55:32.648Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sigflux.github.io/hypertext/reference/raw_html.html</loc>
+    <lastmod>2026-07-04T18:55:32.649Z</lastmod>
+  </url>
+  <url>
+    <loc>https://sigflux.github.io/hypertext/reference/tags.html</loc>
+    <lastmod>2026-07-04T18:55:32.649Z</lastmod>
+  </url>
 </urlset>
-

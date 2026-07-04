@@ -1,0 +1,321 @@
+---
+title: hypertext
+---
+
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/sigflux/hypertext/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/sigflux/hypertext/actions/workflows/R-CMD-check.yaml)
+[![CRAN status](https://www.r-pkg.org/badges/version/hypertext)](https://CRAN.R-project.org/package=hypertext)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+
+<!-- badges: end -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(hypertext)
+```
+
+html element construction for R.
+
+`hypertext` provides a deterministic, framework-agnostic DSL for building
+html nodes and rendering them to a string.
+
+- dependency-free. zero package imports.
+  lightweight is the right weight, as suggested in the
+  [tinyverse](https://www.tinyverse.org/) philosophy.
+- does **not** implement templating, dependency management, or
+  widgets/framework integrations.
+- heavily inspired by [{htmltools}](https://github.com/rstudio/htmltools).
+
+## installation
+
+install the stable version from CRAN:
+
+```{r install_cran, eval = FALSE}
+install.packages("hypertext")
+```
+
+or get the development version from github:
+
+```{r install_github, eval = FALSE}
+devtools::install_github("sigflux/hypertext")
+```
+
+## quick start
+
+```{r quick_start}
+page <- tag_list(
+  doctype(),
+  tags$html(
+    tags$head(
+      tags$title("hypertext")
+    ),
+    tags$body(
+      tags$h1("Hello"),
+      tags$p(
+        class = c("lead", "mb-2"),
+        "Server-side HTML."
+      ),
+      tags$input(
+        type = "text",
+        placeholder = "enter your nickname"
+      ),
+      tags$button(
+        "Click"
+      )
+    )
+  )
+)
+
+page
+```
+
+## rendering
+
+`render()` takes a tag tree and returns a single HTML string:
+
+```{r rendering}
+x <- tags$p(
+  class = "lead",
+  "hello"
+)
+
+# `x` contains the tag tree
+class(x)
+x
+
+# rendering produces an HTML string:
+render(x)
+```
+
+you can `render()` directly to an html file by supplying
+the `file` parameter:
+
+```{r render_to_file, eval = FALSE}
+page <- tag_list(
+  doctype(),
+  tags$html(
+    tags$head(
+      tags$title("hypertext")
+    ),
+    tags$body(
+      tags$h1("Hello"),
+      tags$p(
+        class = c("lead", "mb-2"),
+        "Server-side HTML."
+      ),
+      tags$input(
+        type = "text",
+        placeholder = "enter your nickname"
+      ),
+      tags$button(
+        "Click"
+      )
+    )
+  )
+)
+
+render(x = page, file = "index.html")
+```
+
+## tag lists
+
+`tag_list()` groups sibling nodes without wrapping them in a parent element.
+
+```{r tag_lists}
+header <- tag_list(
+  tags$h1("hello"),
+  tags$p(
+    class = "lead",
+    "welcome aboard."
+  )
+)
+
+# `header` is a "hypertext.tag.list" object:
+class(header)
+
+header
+```
+
+## raw html
+
+`raw_html()` marks a string as pre-rendered HTML so that `render()` outputs
+it verbatim, without escaping. useful for injecting inline scripts, styles,
+SVG markup, or any content that is already valid HTML.
+
+```{r raw_html}
+tags$div(
+  raw_html("<svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='40'/></svg>")
+)
+```
+
+`doctype()` is a convenience wrapper around `raw_html("<!DOCTYPE html>")`.
+
+## custom tags
+
+`tag()` creates elements for any tag name, including web components and
+custom elements not in the built-in `tags` list. it takes 3 arguments:
+
+- `tag_name`: name of the html element.
+- `...`: attributes (named) & children (unnamed).
+- `tag_type`: either "normal" (default) for the standard html
+  elements, or "void" for the self-closing elements.
+
+```{r custom_tag}
+content <- tag(
+  tag_name = "calcite-action-bar",
+  layout = "horizontal"
+)
+
+content
+```
+
+nest them freely with each other and with built-in tags:
+
+```{r nested_custom_tags}
+page <- tags$div(
+  class = "app",
+  tag(
+    tag_name = "calcite-shell",
+    tag(
+      tag_name = "calcite-shell-panel",
+      slot = "panel-start",
+      tag(
+        tag_name = "calcite-action-bar",
+        tag(
+          tag_name = "calcite-action",
+          text = "Layers",
+          icon = "layers"
+        ),
+        tag(
+          tag_name = "calcite-action",
+          text = "Basemaps",
+          icon = "basemap"
+        )
+      )
+    ),
+    tags$div(id = "map")
+  )
+)
+
+page
+```
+
+for self-closing elements, set `tag_type = "void"`:
+
+```{r void_custom_tag}
+content <- tag(
+  tag_name = "my-icon",
+  name = "home",
+  tag_type = "void"
+)
+
+content
+```
+
+## usage in frameworks
+
+here are a couple of examples of how you can use hypertext in
+R web frameworks.
+
+### ambiorix
+
+[ambiorix](https://ambiorix.dev/) is the perfect example of
+  a web framework where you will find {hypertext} useful:
+
+```{r ambiorix_usage, eval = FALSE}
+library(ambiorix)
+library(hypertext)
+
+app <- Ambiorix$new(port = 3000L)
+
+app$get("/", function(req, res) {
+  html <- tags$h1("hello, world!") |>
+    render()
+
+  res$send(html)
+})
+
+app$get("/about", function(req, res) {
+  html <- tag_list(
+    tags$h1("about us"),
+    tags$p(
+      "minimal ",
+      tags$strong("html construction"),
+      " for R."
+    )
+  ) |>
+    render()
+
+  res$send(html)
+})
+
+app$get("/team", function(req, res) {
+  teammates <- c("you", "me", "other")
+
+  html <- tags$div(
+    class = "team",
+    tags$p("meet the team:"),
+    tags$ul(
+      lapply(teammates, tags$li)
+    )
+  ) |>
+    render()
+
+  res$send(html)
+})
+
+app$start()
+```
+
+### shiny
+
+[shiny](https://shiny.posit.co/) already has {htmltools} tags
+internally, so you do not need {hypertext} in your shiny apps,
+but in case you do:
+
+```{r shiny_usage, eval = FALSE}
+library(shiny)
+library(bslib)
+library(hypertext)
+
+# use `hypertext::tags` explicitly to avoid clashing with `shiny::tags`.
+ht <- hypertext::tags
+
+card <- function(title, body) {
+  ht$div(
+    class = "card mt-3",
+    ht$div(
+      class = "card-header",
+      title
+    ),
+    ht$div(
+      class = "card-body",
+      ht$p(
+        class = "card-text",
+        body
+      )
+    )
+  )
+}
+
+content <- ht$div(
+  class = "container py-4",
+  card("First card", "Some quick example text."),
+  card("Second card", "Another body of text.")
+) |>
+  render()
+
+ui <- page(
+  theme = bs_theme(version = 5L),
+  # hypertext renders an HTML string, so wrap in shiny::HTML()
+  HTML(content)
+)
+
+server <- function(input, output, session) {}
+
+shinyApp(ui, server)
+```

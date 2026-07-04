@@ -1,0 +1,30 @@
+---
+title: tag_list
+---
+
+## create a tag list
+
+Useful when you want to collect sibling nodes into a single object without wrapping them in a parent element.
+
+```r
+tag_list(...)
+```
+
+## arguments
+
+`...`
+
+: Tags, text, or other renderable objects /// Optional.
+
+## value
+
+A list of class `"hypertext.tag.list"`.
+
+## examples
+
+```{r}
+library(hypertext)
+
+tl <- tag_list(tags$p("one"), tags$p("two"))
+render(tl)
+```
